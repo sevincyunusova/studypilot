@@ -902,47 +902,99 @@ export default function Home() {
                 </button>
 
                 {aiPlan && (
-                  <div className="rounded-xl border border-blue-900 bg-blue-950/40 p-5">
+                  <div className="mt-6 rounded-xl border border-blue-800 bg-slate-950 p-5">
 
-                    <h3 className="mb-3 text-lg font-semibold">
-                      Your AI Study Plan
-                    </h3>
+                    <div className="flex items-start justify-between gap-4">
 
-                    <p className="text-sm leading-7 text-slate-300">
-                      {aiPlan}
-                    </p>
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <span className="rounded-full bg-blue-600/20 px-2.5 py-1 text-xs font-medium text-blue-400">
+                            AI Generated
+                          </span>
 
-                    <div className="mt-5 space-y-3">
-                      {aiTasks.map((task, index) => (
-                        <div
-                          key={index}
-                          className="rounded-lg border border-slate-800 bg-slate-950 p-4"
-                        >
-                          <div className="flex items-center justify-between gap-4">
-                            <div>
-                              <h4 className="font-medium">
-                                {task.title}
-                              </h4>
-
-                              <p className="mt-1 text-sm text-slate-400">
-                                {task.subject} • {task.deadline}
-                              </p>
-                            </div>
-
-                            <span className="rounded-full bg-blue-950 px-3 py-1 text-xs text-blue-400">
-                              {task.priority}
-                            </span>
-                          </div>
+                          <span className="text-xs text-slate-500">
+                            StudyPilot
+                          </span>
                         </div>
-                      ))}
+
+                        <h3 className="mt-3 text-xl font-semibold">
+                          Your Personalized Study Plan
+                        </h3>
+
+                        <p className="mt-1 text-sm text-slate-400">
+                          A study plan created based on your goals, level and available time.
+                        </p>
+                      </div>
+
                     </div>
 
-                    <button
-                      onClick={addAIPlanToTasks}
-                      className="mt-5 w-full rounded-lg bg-blue-600 py-3 font-medium transition hover:bg-blue-500"
-                    >
-                      Add Plan to My Tasks
-                    </button>
+                    <div className="mt-5 rounded-lg border border-slate-800 bg-slate-900 p-4">
+                      <p className="whitespace-pre-line text-sm leading-7 text-slate-300">
+                        {aiPlan}
+                      </p>
+                    </div>
+
+                    {aiTasks.length > 0 && (
+                      <div className="mt-6">
+
+                        <div className="mb-3 flex items-center justify-between">
+                          <h4 className="font-semibold">
+                            Recommended Tasks
+                          </h4>
+
+                          <span className="text-xs text-slate-500">
+                            {aiTasks.length} tasks
+                          </span>
+                        </div>
+
+                        <div className="space-y-3">
+
+                          {aiTasks.map((task, index) => (
+                            <div
+                              key={index}
+                              className="rounded-lg border border-slate-800 bg-slate-900 p-4"
+                            >
+
+                              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+
+                                <div className="min-w-0">
+                                  <h5 className="font-medium">
+                                    {task.title}
+                                  </h5>
+
+                                  <div className="mt-1 flex flex-wrap gap-x-3 gap-y-1 text-xs text-slate-400">
+                                    <span>{task.subject}</span>
+                                    <span>Deadline: {task.deadline}</span>
+                                  </div>
+                                </div>
+
+                                <span
+                                  className={`w-fit rounded-full px-3 py-1 text-xs font-medium ${task.priority === "High"
+                                      ? "bg-red-950 text-red-400"
+                                      : task.priority === "Medium"
+                                        ? "bg-yellow-950 text-yellow-400"
+                                        : "bg-green-950 text-green-400"
+                                    }`}
+                                >
+                                  {task.priority}
+                                </span>
+
+                              </div>
+
+                            </div>
+                          ))}
+
+                        </div>
+
+                        <button
+                          onClick={addAIPlanToTasks}
+                          className="mt-5 w-full rounded-lg bg-blue-600 py-3 font-medium transition hover:bg-blue-500"
+                        >
+                          Add Plan to My Tasks
+                        </button>
+
+                      </div>
+                    )}
 
                   </div>
                 )}
