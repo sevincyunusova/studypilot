@@ -514,37 +514,7 @@ export default function Home() {
 
         </section>
 
-        <div className="rounded-xl border border-slate-800 bg-slate-900 p-6">
-          <p className="text-sm text-slate-400">
-            Today&apos;s Tasks
-          </p>
-
-          <p className="mt-2 text-3xl font-bold">
-            {tasks.length}
-          </p>
-        </div>
-
-        <div className="rounded-xl border border-slate-800 bg-slate-900 p-6">
-          <p className="text-sm text-slate-400">
-            Completed
-          </p>
-
-          <p className="mt-2 text-3xl font-bold">
-            {completedTasks}
-          </p>
-        </div>
-
-        <div className="rounded-xl border border-slate-800 bg-slate-900 p-6">
-          <p className="text-sm text-slate-400">
-            Study Progress
-          </p>
-
-          <p className="mt-2 text-3xl font-bold">
-            {progress}%
-          </p>
-        </div>
-
-      </section>
+       
 
       <section className="mt-8 rounded-xl border border-slate-800 bg-slate-900 p-6">
 
