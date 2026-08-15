@@ -15,6 +15,7 @@ export default function Home() {
   const [tasks, setTasks] = useState<Task[]>([])
   const [showForm, setShowForm] = useState(false)
   const [editingTask, setEditingTask] = useState<Task | null>(null)
+  const [selectedSubject, setSelectedSubject] = useState("All")
 
   const [title, setTitle] = useState("")
   const [subject, setSubject] = useState("")
@@ -116,6 +117,18 @@ export default function Home() {
       ? 0
       : Math.round((completedTasks / tasks.length) * 100)
 
+  const subjects = [
+    "All",
+    ...Array.from(new Set(tasks.map((task) => task.subject))),
+  ]
+
+  const filteredTasks =
+    selectedSubject === "All"
+      ? tasks
+      : tasks.filter(
+          (task) => task.subject === selectedSubject
+        )
+
   return (
     <main className="min-h-screen bg-slate-950 text-white">
       <div className="mx-auto max-w-7xl px-6 py-10">
@@ -188,27 +201,53 @@ export default function Home() {
 
         <section className="mt-8 rounded-xl border border-slate-800 bg-slate-900 p-6">
 
-          <h2 className="text-xl font-semibold">
-            Today&apos;s Study Plan
-          </h2>
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
 
-          {tasks.length === 0 ? (
+            <h2 className="text-xl font-semibold">
+              Today&apos;s Study Plan
+            </h2>
+
+            <div className="flex flex-wrap gap-2">
+
+              {subjects.map((item) => (
+                <button
+                  key={item}
+                  onClick={() => setSelectedSubject(item)}
+                  className={`rounded-lg px-4 py-2 text-sm font-medium transition ${
+                    selectedSubject === item
+                      ? "bg-blue-600 text-white"
+                      : "bg-slate-800 text-slate-300 hover:bg-slate-700"
+                  }`}
+                >
+                  {item}
+                </button>
+              ))}
+
+            </div>
+
+          </div>
+
+          {filteredTasks.length === 0 ? (
 
             <div className="mt-6 rounded-lg border border-dashed border-slate-700 p-8 text-center">
 
               <p className="text-slate-400">
-                No study tasks yet.
+                {tasks.length === 0
+                  ? "No study tasks yet."
+                  : "No tasks found for this subject."}
               </p>
 
-              <button
-                onClick={() => {
-                  setEditingTask(null)
-                  setShowForm(true)
-                }}
-                className="mt-4 rounded-lg bg-blue-600 px-5 py-2.5 font-medium transition hover:bg-blue-500"
-              >
-                Create your first task
-              </button>
+              {tasks.length === 0 && (
+                <button
+                  onClick={() => {
+                    setEditingTask(null)
+                    setShowForm(true)
+                  }}
+                  className="mt-4 rounded-lg bg-blue-600 px-5 py-2.5 font-medium transition hover:bg-blue-500"
+                >
+                  Create your first task
+                </button>
+              )}
 
             </div>
 
@@ -216,11 +255,11 @@ export default function Home() {
 
             <div className="mt-6 space-y-3">
 
-              {tasks.map((task) => (
+              {filteredTasks.map((task) => (
 
                 <div
                   key={task.id}
-                  className="flex items-center gap-4 rounded-lg border border-slate-800 bg-slate-950 p-4"
+                  className="flex flex-wrap items-center gap-4 rounded-lg border border-slate-800 bg-slate-950 p-4"
                 >
 
                   <input
@@ -230,7 +269,7 @@ export default function Home() {
                     className="h-5 w-5 cursor-pointer accent-blue-600"
                   />
 
-                  <div className="flex-1">
+                  <div className="min-w-[200px] flex-1">
 
                     <h3
                       className={`font-semibold ${
@@ -286,7 +325,7 @@ export default function Home() {
 
         <section className="mt-8 rounded-xl border border-blue-900 bg-blue-950/40 p-6">
 
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
 
             <div>
               <h2 className="text-xl font-semibold">
@@ -308,14 +347,16 @@ export default function Home() {
 
         {showForm && (
 
-          <div className="fixed inset-0 flex items-center justify-center bg-black/70 px-4">
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-4">
 
             <div className="w-full max-w-md rounded-xl border border-slate-800 bg-slate-900 p-6">
 
               <div className="mb-6 flex items-center justify-between">
 
                 <h2 className="text-xl font-semibold">
-                  {editingTask ? "Edit Study Task" : "Add Study Task"}
+                  {editingTask
+                    ? "Edit Study Task"
+                    : "Add Study Task"}
                 </h2>
 
                 <button
@@ -385,10 +426,16 @@ export default function Home() {
                 </div>
 
                 <button
-                  onClick={editingTask ? updateTask : addTask}
+                  onClick={
+                    editingTask
+                      ? updateTask
+                      : addTask
+                  }
                   className="w-full rounded-lg bg-blue-600 py-3 font-medium transition hover:bg-blue-500"
                 >
-                  {editingTask ? "Save Changes" : "Add Task"}
+                  {editingTask
+                    ? "Save Changes"
+                    : "Add Task"}
                 </button>
 
               </div>
