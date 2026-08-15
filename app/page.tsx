@@ -340,23 +340,22 @@ export default function Home() {
     <main className="min-h-screen bg-slate-950 text-white">
       <div className="mx-auto max-w-7xl px-6 py-10">
 
-        <header className="mb-10 flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold">
-              StudyPilot
-            </h1>
+        <header className="mb-10 flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">          <div>
+          <h1 className="text-3xl font-bold">
+            StudyPilot
+          </h1>
 
-            <p className="mt-1 text-slate-400">
-              Your AI-powered study planner
-            </p>
-          </div>
+          <p className="mt-1 text-slate-400">
+            Your AI-powered study planner
+          </p>
+        </div>
 
           <button
             onClick={() => {
               setEditingTask(null)
               setShowForm(true)
             }}
-            className="rounded-lg bg-blue-600 px-5 py-2.5 font-medium transition hover:bg-blue-500"
+            className="w-full rounded-lg bg-blue-600 px-5 py-2.5 font-medium transition hover:bg-blue-500 sm:w-auto"
           >
             + Add Task
           </button>
@@ -612,8 +611,7 @@ export default function Home() {
 
             </div>
 
-            <div className="flex flex-col gap-3 md:flex-row">
-
+            <div className="flex flex-col gap-3 lg:flex-row">
               <input
                 type="text"
                 value={searchQuery}
@@ -622,8 +620,7 @@ export default function Home() {
                 className="flex-1 rounded-lg border border-slate-700 bg-slate-950 px-4 py-3 text-sm outline-none transition focus:border-blue-500"
               />
 
-              <div className="flex gap-2">
-
+              <div className="grid grid-cols-3 gap-2 lg:flex">
                 {["All", "Active", "Completed"].map((status) => (
                   <button
                     key={status}
@@ -675,8 +672,7 @@ export default function Home() {
 
                 <div
                   key={task.id}
-                  className="flex flex-wrap items-center gap-4 rounded-lg border border-slate-800 bg-slate-950 p-4"
-                >
+                  className="flex flex-col items-stretch gap-4 rounded-lg border border-slate-800 bg-slate-950 p-4 sm:flex-row sm:flex-wrap sm:items-center">
 
                   <input
                     type="checkbox"
