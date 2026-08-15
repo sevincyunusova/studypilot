@@ -8,6 +8,7 @@ type Task = {
   subject: string
   deadline: string
   priority: string
+  completed: boolean
 }
 
 export default function Home() {
@@ -40,6 +41,7 @@ export default function Home() {
       subject,
       deadline,
       priority,
+      completed: false,
     }
 
     setTasks([...tasks, newTask])
@@ -51,6 +53,25 @@ export default function Home() {
     setShowForm(false)
   }
 
+  const toggleTask = (id: number) => {
+    setTasks(
+      tasks.map((task) =>
+        task.id === id
+          ? { ...task, completed: !task.completed }
+          : task
+      )
+    )
+  }
+
+  const completedTasks = tasks.filter(
+    (task) => task.completed
+  ).length
+
+  const progress =
+    tasks.length === 0
+      ? 0
+      : Math.round((completedTasks / tasks.length) * 100)
+
   return (
     <main className="min-h-screen bg-slate-950 text-white">
       <div className="mx-auto max-w-7xl px-6 py-10">
@@ -58,6 +79,7 @@ export default function Home() {
         <header className="mb-10 flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-bold">StudyPilot</h1>
+
             <p className="mt-1 text-slate-400">
               Your AI-powered study planner
             </p>
@@ -72,34 +94,59 @@ export default function Home() {
         </header>
 
         <section className="mb-8">
-          <h2 className="text-2xl font-semibold">Good morning!</h2>
+          <h2 className="text-2xl font-semibold">
+            Good morning!
+          </h2>
+
           <p className="mt-2 text-slate-400">
             Here is your study overview for today.
           </p>
         </section>
 
         <section className="grid gap-5 md:grid-cols-3">
+
           <div className="rounded-xl border border-slate-800 bg-slate-900 p-6">
-            <p className="text-sm text-slate-400">Today&apos;s Tasks</p>
-            <p className="mt-2 text-3xl font-bold">{tasks.length}</p>
+            <p className="text-sm text-slate-400">
+              Today&apos;s Tasks
+            </p>
+
+            <p className="mt-2 text-3xl font-bold">
+              {tasks.length}
+            </p>
           </div>
 
           <div className="rounded-xl border border-slate-800 bg-slate-900 p-6">
-            <p className="text-sm text-slate-400">Completed</p>
-            <p className="mt-2 text-3xl font-bold">0</p>
+            <p className="text-sm text-slate-400">
+              Completed
+            </p>
+
+            <p className="mt-2 text-3xl font-bold">
+              {completedTasks}
+            </p>
           </div>
 
           <div className="rounded-xl border border-slate-800 bg-slate-900 p-6">
-            <p className="text-sm text-slate-400">Study Progress</p>
-            <p className="mt-2 text-3xl font-bold">0%</p>
+            <p className="text-sm text-slate-400">
+              Study Progress
+            </p>
+
+            <p className="mt-2 text-3xl font-bold">
+              {progress}%
+            </p>
           </div>
+
         </section>
 
         <section className="mt-8 rounded-xl border border-slate-800 bg-slate-900 p-6">
-          <h2 className="text-xl font-semibold">Today&apos;s Study Plan</h2>
+
+          <h2 className="text-xl font-semibold">
+            Today&apos;s Study Plan
+          </h2>
 
           {tasks.length === 0 ? (
+
             <div className="mt-6 rounded-lg border border-dashed border-slate-700 p-8 text-center">
+
               <p className="text-slate-400">
                 No study tasks yet.
               </p>
@@ -110,35 +157,71 @@ export default function Home() {
               >
                 Create your first task
               </button>
+
             </div>
+
           ) : (
+
             <div className="mt-6 space-y-3">
+
               {tasks.map((task) => (
+
                 <div
                   key={task.id}
-                  className="rounded-lg border border-slate-800 bg-slate-950 p-4"
+                  className="flex items-center gap-4 rounded-lg border border-slate-800 bg-slate-950 p-4"
                 >
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <h3 className="font-semibold">{task.title}</h3>
 
-                      <p className="mt-1 text-sm text-slate-400">
-                        {task.subject} • Deadline: {task.deadline}
-                      </p>
-                    </div>
+                  <input
+                    type="checkbox"
+                    checked={task.completed}
+                    onChange={() => toggleTask(task.id)}
+                    className="h-5 w-5 cursor-pointer accent-blue-600"
+                  />
 
-                    <span className="rounded-full bg-slate-800 px-3 py-1 text-xs">
-                      {task.priority}
-                    </span>
+                  <div className="flex-1">
+
+                    <h3
+                      className={`font-semibold ${
+                        task.completed
+                          ? "text-slate-500 line-through"
+                          : ""
+                      }`}
+                    >
+                      {task.title}
+                    </h3>
+
+                    <p className="mt-1 text-sm text-slate-400">
+                      {task.subject} • Deadline: {task.deadline}
+                    </p>
+
                   </div>
+
+                  <span
+                    className={`rounded-full px-3 py-1 text-xs ${
+                      task.priority === "High"
+                        ? "bg-red-950 text-red-400"
+                        : task.priority === "Medium"
+                        ? "bg-yellow-950 text-yellow-400"
+                        : "bg-green-950 text-green-400"
+                    }`}
+                  >
+                    {task.priority}
+                  </span>
+
                 </div>
+
               ))}
+
             </div>
+
           )}
+
         </section>
 
         <section className="mt-8 rounded-xl border border-blue-900 bg-blue-950/40 p-6">
+
           <div className="flex items-center justify-between">
+
             <div>
               <h2 className="text-xl font-semibold">
                 AI Study Planner
@@ -152,14 +235,19 @@ export default function Home() {
             <button className="rounded-lg bg-white px-5 py-2.5 font-medium text-slate-900 transition hover:bg-slate-200">
               Generate Plan
             </button>
+
           </div>
+
         </section>
 
         {showForm && (
+
           <div className="fixed inset-0 flex items-center justify-center bg-black/70 px-4">
+
             <div className="w-full max-w-md rounded-xl border border-slate-800 bg-slate-900 p-6">
 
               <div className="mb-6 flex items-center justify-between">
+
                 <h2 className="text-xl font-semibold">
                   Add Study Task
                 </h2>
@@ -170,6 +258,7 @@ export default function Home() {
                 >
                   ✕
                 </button>
+
               </div>
 
               <div className="space-y-4">
@@ -237,8 +326,11 @@ export default function Home() {
                 </button>
 
               </div>
+
             </div>
+
           </div>
+
         )}
 
       </div>
