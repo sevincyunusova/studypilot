@@ -172,12 +172,35 @@ export default function Home() {
       setAiPlan(data.plan)
       setAiTasks(data.tasks || [])
     } catch (error) {
-      console.error(error)
+  console.error("AI plan generation error:", error)
 
-      setAiError(
-        "Failed to generate your study plan. Please try again."
-      )
-    } finally {
+  const errorMessage =
+    error instanceof Error
+      ? error.message.toLowerCase()
+      : ""
+
+  if (
+    errorMessage.includes("503") ||
+    errorMessage.includes("unavailable") ||
+    errorMessage.includes("high demand")
+  ) {
+    setAiError(
+      "The AI service is temporarily busy. Please wait a moment and try again."
+    )
+  } else if (
+    errorMessage.includes("429") ||
+    errorMessage.includes("quota") ||
+    errorMessage.includes("rate limit")
+  ) {
+    setAiError(
+      "The AI service has reached its usage limit. Please try again later."
+    )
+  } else {
+    setAiError(
+      "We couldn't generate your study plan right now. Please try again."
+    )
+  }
+} finally {
       setAiLoading(false)
     }
   }

@@ -95,9 +95,25 @@ Rules:
   } catch (error) {
     console.error("AI plan generation error:", error)
 
+    const message =
+      error instanceof Error
+        ? error.message
+        : "Unknown AI error"
+
+    const status =
+      message.includes("503") ||
+        message.includes("UNAVAILABLE")
+        ? 503
+        : message.includes("429") ||
+          message.includes("quota")
+          ? 429
+          : 500
+
     return NextResponse.json(
-      { error: "Failed to generate study plan." },
-      { status: 500 }
+      {
+        error: message,
+      },
+      { status }
     )
   }
 }
