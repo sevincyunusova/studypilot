@@ -894,11 +894,19 @@ export default function Home() {
                 <button
                   onClick={generatePlan}
                   disabled={aiLoading}
-                  className="w-full rounded-lg bg-blue-600 py-3 font-medium hover:bg-blue-500 disabled:opacity-50"
+                  className="flex w-full items-center justify-center gap-3 rounded-lg bg-blue-600 py-3 font-medium transition hover:bg-blue-500 disabled:cursor-not-allowed disabled:opacity-60"
                 >
-                  {aiLoading
-                    ? "Creating your study plan..."
-                    : "Generate AI Study Plan"}
+                  {aiLoading ? (
+                    <>
+                      <span className="h-5 w-5 animate-spin rounded-full border-2 border-white/30 border-t-white" />
+
+                      <span>
+                        Creating your study plan...
+                      </span>
+                    </>
+                  ) : (
+                    "Generate AI Study Plan"
+                  )}
                 </button>
 
                 {aiPlan && (
@@ -970,10 +978,10 @@ export default function Home() {
 
                                 <span
                                   className={`w-fit rounded-full px-3 py-1 text-xs font-medium ${task.priority === "High"
-                                      ? "bg-red-950 text-red-400"
-                                      : task.priority === "Medium"
-                                        ? "bg-yellow-950 text-yellow-400"
-                                        : "bg-green-950 text-green-400"
+                                    ? "bg-red-950 text-red-400"
+                                    : task.priority === "Medium"
+                                      ? "bg-yellow-950 text-yellow-400"
+                                      : "bg-green-950 text-green-400"
                                     }`}
                                 >
                                   {task.priority}
