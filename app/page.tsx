@@ -642,12 +642,22 @@ export default function Home() {
 
           {filteredTasks.length === 0 ? (
 
-            <div className="mt-6 rounded-lg border border-dashed border-slate-700 p-8 text-center">
+            <div className="mt-6 rounded-xl border border-dashed border-slate-700 bg-slate-950/50 px-6 py-12 text-center">
 
-              <p className="text-slate-400">
+              <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-blue-950 text-2xl">
+                {tasks.length === 0 ? "📚" : "🔎"}
+              </div>
+
+              <h3 className="mt-5 text-lg font-semibold">
                 {tasks.length === 0
-                  ? "No study tasks yet."
-                  : "No tasks found for this subject."}
+                  ? "No study tasks yet"
+                  : "No tasks found"}
+              </h3>
+
+              <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-slate-400">
+                {tasks.length === 0
+                  ? "Start organizing your studies by creating your first task."
+                  : "Try changing your search, subject or status filter."}
               </p>
 
               {tasks.length === 0 && (
@@ -656,9 +666,22 @@ export default function Home() {
                     setEditingTask(null)
                     setShowForm(true)
                   }}
-                  className="mt-4 rounded-lg bg-blue-600 px-5 py-2.5 font-medium transition hover:bg-blue-500"
+                  className="mt-5 rounded-lg bg-blue-600 px-5 py-2.5 font-medium transition hover:bg-blue-500"
                 >
-                  Create your first task
+                  + Create your first task
+                </button>
+              )}
+
+              {tasks.length > 0 && (
+                <button
+                  onClick={() => {
+                    setSearchQuery("")
+                    setTaskStatus("All")
+                    setSelectedSubject("All")
+                  }}
+                  className="mt-5 rounded-lg border border-slate-700 px-5 py-2.5 text-sm font-medium text-slate-300 transition hover:bg-slate-800 hover:text-white"
+                >
+                  Clear filters
                 </button>
               )}
 
