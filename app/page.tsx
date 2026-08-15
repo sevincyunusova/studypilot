@@ -17,6 +17,17 @@ export default function Home() {
   const [editingTask, setEditingTask] = useState<Task | null>(null)
   const [selectedSubject, setSelectedSubject] = useState("All")
 
+  const [showAIForm, setShowAIForm] = useState(false)
+  const [aiLoading, setAiLoading] = useState(false)
+  const [aiPlan, setAiPlan] = useState("")
+  const [aiError, setAiError] = useState("")
+
+  const [goal, setGoal] = useState("")
+  const [examDate, setExamDate] = useState("")
+  const [hoursPerDay, setHoursPerDay] = useState("")
+  const [level, setLevel] = useState("Intermediate")
+  const [aiSubjects, setAiSubjects] = useState("")
+
   const [title, setTitle] = useState("")
   const [subject, setSubject] = useState("")
   const [deadline, setDeadline] = useState("")
@@ -75,12 +86,12 @@ export default function Home() {
       tasks.map((task) =>
         task.id === editingTask.id
           ? {
-              ...task,
-              title,
-              subject,
-              deadline,
-              priority,
-            }
+            ...task,
+            title,
+            subject,
+            deadline,
+            priority,
+          }
           : task
       )
     )
@@ -108,6 +119,54 @@ export default function Home() {
     )
   }
 
+  const generatePlan = async () => {
+  if (
+    !goal ||
+    !examDate ||
+    !hoursPerDay ||
+    !level ||
+    !aiSubjects
+  ) {
+    setAiError("Please complete all fields.")
+    return
+  }
+
+  try {
+    setAiLoading(true)
+    setAiError("")
+    setAiPlan("")
+
+    const response = await fetch("/api/generate-plan", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        goal,
+        examDate,
+        hoursPerDay,
+        level,
+        subjects: aiSubjects,
+      }),
+    })
+
+    const data = await response.json()
+
+    if (!response.ok) {
+      throw new Error(data.error || "Something went wrong.")
+    }
+
+    setAiPlan(data.plan)
+  } catch (error) {
+    console.error(error)
+    setAiError(
+      "Failed to generate your study plan. Please try again."
+    )
+  } finally {
+    setAiLoading(false)
+  }
+}
+
   const completedTasks = tasks.filter(
     (task) => task.completed
   ).length
@@ -126,8 +185,8 @@ export default function Home() {
     selectedSubject === "All"
       ? tasks
       : tasks.filter(
-          (task) => task.subject === selectedSubject
-        )
+        (task) => task.subject === selectedSubject
+      )
 
   return (
     <main className="min-h-screen bg-slate-950 text-white">
@@ -213,11 +272,10 @@ export default function Home() {
                 <button
                   key={item}
                   onClick={() => setSelectedSubject(item)}
-                  className={`rounded-lg px-4 py-2 text-sm font-medium transition ${
-                    selectedSubject === item
-                      ? "bg-blue-600 text-white"
-                      : "bg-slate-800 text-slate-300 hover:bg-slate-700"
-                  }`}
+                  className={`rounded-lg px-4 py-2 text-sm font-medium transition ${selectedSubject === item
+                    ? "bg-blue-600 text-white"
+                    : "bg-slate-800 text-slate-300 hover:bg-slate-700"
+                    }`}
                 >
                   {item}
                 </button>
@@ -272,11 +330,10 @@ export default function Home() {
                   <div className="min-w-[200px] flex-1">
 
                     <h3
-                      className={`font-semibold ${
-                        task.completed
-                          ? "text-slate-500 line-through"
-                          : ""
-                      }`}
+                      className={`font-semibold ${task.completed
+                        ? "text-slate-500 line-through"
+                        : ""
+                        }`}
                     >
                       {task.title}
                     </h3>
@@ -288,13 +345,12 @@ export default function Home() {
                   </div>
 
                   <span
-                    className={`rounded-full px-3 py-1 text-xs ${
-                      task.priority === "High"
-                        ? "bg-red-950 text-red-400"
-                        : task.priority === "Medium"
+                    className={`rounded-full px-3 py-1 text-xs ${task.priority === "High"
+                      ? "bg-red-950 text-red-400"
+                      : task.priority === "Medium"
                         ? "bg-yellow-950 text-yellow-400"
                         : "bg-green-950 text-green-400"
-                    }`}
+                      }`}
                   >
                     {task.priority}
                   </span>
@@ -337,7 +393,13 @@ export default function Home() {
               </p>
             </div>
 
-            <button className="rounded-lg bg-white px-5 py-2.5 font-medium text-slate-900 transition hover:bg-slate-200">
+            <button
+              onClick={() => {
+                setShowAIForm(true)
+                setAiError("")
+              }}
+              className="rounded-lg bg-white px-5 py-2.5 font-medium text-slate-900 transition hover:bg-slate-200"
+            >
               Generate Plan
             </button>
 
@@ -447,6 +509,105 @@ export default function Home() {
         )}
 
       </div>
+
+      {showAIForm && (
+  <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-4">
+    <div className="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-xl border border-slate-800 bg-slate-900 p-6">
+
+      <div className="mb-6 flex items-center justify-between">
+        <div>
+          <h2 className="text-xl font-semibold">
+            AI Study Planner
+          </h2>
+
+          <p className="mt-1 text-sm text-slate-400">
+            Tell StudyPilot about your study goals.
+          </p>
+        </div>
+
+        <button
+          onClick={() => setShowAIForm(false)}
+          className="text-slate-400 hover:text-white"
+        >
+          ✕
+        </button>
+      </div>
+
+      <div className="space-y-4">
+
+        <input
+          value={goal}
+          onChange={(e) => setGoal(e.target.value)}
+          placeholder="Your study goal"
+          className="w-full rounded-lg border border-slate-700 bg-slate-950 px-4 py-3 outline-none focus:border-blue-500"
+        />
+
+        <input
+          type="date"
+          value={examDate}
+          onChange={(e) => setExamDate(e.target.value)}
+          className="w-full rounded-lg border border-slate-700 bg-slate-950 px-4 py-3 outline-none focus:border-blue-500"
+        />
+
+        <input
+          type="number"
+          min="1"
+          max="12"
+          value={hoursPerDay}
+          onChange={(e) => setHoursPerDay(e.target.value)}
+          placeholder="Study hours per day"
+          className="w-full rounded-lg border border-slate-700 bg-slate-950 px-4 py-3 outline-none focus:border-blue-500"
+        />
+
+        <select
+          value={level}
+          onChange={(e) => setLevel(e.target.value)}
+          className="w-full rounded-lg border border-slate-700 bg-slate-950 px-4 py-3 outline-none focus:border-blue-500"
+        >
+          <option>Beginner</option>
+          <option>Intermediate</option>
+          <option>Advanced</option>
+        </select>
+
+        <input
+          value={aiSubjects}
+          onChange={(e) => setAiSubjects(e.target.value)}
+          placeholder="Subjects: HTML, CSS, JavaScript, React"
+          className="w-full rounded-lg border border-slate-700 bg-slate-950 px-4 py-3 outline-none focus:border-blue-500"
+        />
+
+        {aiError && (
+          <p className="rounded-lg bg-red-950 p-3 text-sm text-red-400">
+            {aiError}
+          </p>
+        )}
+
+        <button
+          onClick={generatePlan}
+          disabled={aiLoading}
+          className="w-full rounded-lg bg-blue-600 py-3 font-medium hover:bg-blue-500 disabled:opacity-50"
+        >
+          {aiLoading
+            ? "Creating your study plan..."
+            : "Generate AI Study Plan"}
+        </button>
+
+        {aiPlan && (
+          <div className="rounded-xl border border-blue-900 bg-blue-950/40 p-5">
+            <h3 className="mb-3 text-lg font-semibold">
+              Your AI Study Plan
+            </h3>
+
+            <div className="whitespace-pre-wrap text-sm leading-7 text-slate-300">
+              {aiPlan}
+            </div>
+          </div>
+        )}
+
+      </div>
+    </div>
+  </div>
+)}
     </main>
   )
 }
