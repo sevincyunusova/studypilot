@@ -14,6 +14,7 @@ type Task = {
 export default function Home() {
   const [tasks, setTasks] = useState<Task[]>([])
   const [showForm, setShowForm] = useState(false)
+  const [editingTask, setEditingTask] = useState<Task | null>(null)
 
   const [title, setTitle] = useState("")
   const [subject, setSubject] = useState("")
@@ -32,6 +33,15 @@ export default function Home() {
     localStorage.setItem("studypilot-tasks", JSON.stringify(tasks))
   }, [tasks])
 
+  const resetForm = () => {
+    setTitle("")
+    setSubject("")
+    setDeadline("")
+    setPriority("Medium")
+    setEditingTask(null)
+    setShowForm(false)
+  }
+
   const addTask = () => {
     if (!title || !subject || !deadline) return
 
@@ -45,12 +55,46 @@ export default function Home() {
     }
 
     setTasks([...tasks, newTask])
+    resetForm()
+  }
 
-    setTitle("")
-    setSubject("")
-    setDeadline("")
-    setPriority("Medium")
-    setShowForm(false)
+  const startEdit = (task: Task) => {
+    setEditingTask(task)
+    setTitle(task.title)
+    setSubject(task.subject)
+    setDeadline(task.deadline)
+    setPriority(task.priority)
+    setShowForm(true)
+  }
+
+  const updateTask = () => {
+    if (!editingTask || !title || !subject || !deadline) return
+
+    setTasks(
+      tasks.map((task) =>
+        task.id === editingTask.id
+          ? {
+              ...task,
+              title,
+              subject,
+              deadline,
+              priority,
+            }
+          : task
+      )
+    )
+
+    resetForm()
+  }
+
+  const deleteTask = (id: number) => {
+    const confirmed = window.confirm(
+      "Are you sure you want to delete this task?"
+    )
+
+    if (!confirmed) return
+
+    setTasks(tasks.filter((task) => task.id !== id))
   }
 
   const toggleTask = (id: number) => {
@@ -78,7 +122,9 @@ export default function Home() {
 
         <header className="mb-10 flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold">StudyPilot</h1>
+            <h1 className="text-3xl font-bold">
+              StudyPilot
+            </h1>
 
             <p className="mt-1 text-slate-400">
               Your AI-powered study planner
@@ -86,7 +132,10 @@ export default function Home() {
           </div>
 
           <button
-            onClick={() => setShowForm(true)}
+            onClick={() => {
+              setEditingTask(null)
+              setShowForm(true)
+            }}
             className="rounded-lg bg-blue-600 px-5 py-2.5 font-medium transition hover:bg-blue-500"
           >
             + Add Task
@@ -152,7 +201,10 @@ export default function Home() {
               </p>
 
               <button
-                onClick={() => setShowForm(true)}
+                onClick={() => {
+                  setEditingTask(null)
+                  setShowForm(true)
+                }}
                 className="mt-4 rounded-lg bg-blue-600 px-5 py-2.5 font-medium transition hover:bg-blue-500"
               >
                 Create your first task
@@ -208,6 +260,20 @@ export default function Home() {
                     {task.priority}
                   </span>
 
+                  <button
+                    onClick={() => startEdit(task)}
+                    className="rounded-lg border border-slate-700 px-3 py-2 text-sm text-slate-300 transition hover:bg-slate-800 hover:text-white"
+                  >
+                    Edit
+                  </button>
+
+                  <button
+                    onClick={() => deleteTask(task.id)}
+                    className="rounded-lg border border-red-900 px-3 py-2 text-sm text-red-400 transition hover:bg-red-950"
+                  >
+                    Delete
+                  </button>
+
                 </div>
 
               ))}
@@ -249,11 +315,11 @@ export default function Home() {
               <div className="mb-6 flex items-center justify-between">
 
                 <h2 className="text-xl font-semibold">
-                  Add Study Task
+                  {editingTask ? "Edit Study Task" : "Add Study Task"}
                 </h2>
 
                 <button
-                  onClick={() => setShowForm(false)}
+                  onClick={resetForm}
                   className="text-slate-400 hover:text-white"
                 >
                   ✕
@@ -319,10 +385,10 @@ export default function Home() {
                 </div>
 
                 <button
-                  onClick={addTask}
+                  onClick={editingTask ? updateTask : addTask}
                   className="w-full rounded-lg bg-blue-600 py-3 font-medium transition hover:bg-blue-500"
                 >
-                  Add Task
+                  {editingTask ? "Save Changes" : "Add Task"}
                 </button>
 
               </div>
