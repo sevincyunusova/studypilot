@@ -33,6 +33,15 @@ export default function Home() {
   const [deadline, setDeadline] = useState("")
   const [priority, setPriority] = useState("Medium")
 
+  const [aiTasks, setAiTasks] = useState<
+    {
+      title: string
+      subject: string
+      deadline: string
+      priority: string
+    }[]
+  >([]) 
+
   useEffect(() => {
     const savedTasks = localStorage.getItem("studypilot-tasks")
 
@@ -119,7 +128,7 @@ export default function Home() {
     )
   }
 
-  const generatePlan = async () => {
+ const generatePlan = async () => {
   if (
     !goal ||
     !examDate ||
@@ -135,6 +144,7 @@ export default function Home() {
     setAiLoading(true)
     setAiError("")
     setAiPlan("")
+    setAiTasks([])
 
     const response = await fetch("/api/generate-plan", {
       method: "POST",
@@ -157,14 +167,36 @@ export default function Home() {
     }
 
     setAiPlan(data.plan)
+    setAiTasks(data.tasks || [])
   } catch (error) {
     console.error(error)
+
     setAiError(
       "Failed to generate your study plan. Please try again."
     )
   } finally {
     setAiLoading(false)
   }
+}
+
+const addAIPlanToTasks = () => {
+  const newTasks: Task[] = aiTasks.map((task, index) => ({
+    id: Date.now() + index,
+    title: task.title,
+    subject: task.subject,
+    deadline: task.deadline,
+    priority: task.priority,
+    completed: false,
+  }))
+
+  setTasks((currentTasks) => [
+    ...currentTasks,
+    ...newTasks,
+  ])
+
+  setShowAIForm(false)
+  setAiTasks([])
+  setAiPlan("")
 }
 
   const completedTasks = tasks.filter(
@@ -511,103 +543,137 @@ export default function Home() {
       </div>
 
       {showAIForm && (
-  <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-4">
-    <div className="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-xl border border-slate-800 bg-slate-900 p-6">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-4">
+          <div className="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-xl border border-slate-800 bg-slate-900 p-6">
 
-      <div className="mb-6 flex items-center justify-between">
-        <div>
-          <h2 className="text-xl font-semibold">
-            AI Study Planner
-          </h2>
+            <div className="mb-6 flex items-center justify-between">
+              <div>
+                <h2 className="text-xl font-semibold">
+                  AI Study Planner
+                </h2>
 
-          <p className="mt-1 text-sm text-slate-400">
-            Tell StudyPilot about your study goals.
-          </p>
-        </div>
+                <p className="mt-1 text-sm text-slate-400">
+                  Tell StudyPilot about your study goals.
+                </p>
+              </div>
 
-        <button
-          onClick={() => setShowAIForm(false)}
-          className="text-slate-400 hover:text-white"
-        >
-          ✕
-        </button>
-      </div>
-
-      <div className="space-y-4">
-
-        <input
-          value={goal}
-          onChange={(e) => setGoal(e.target.value)}
-          placeholder="Your study goal"
-          className="w-full rounded-lg border border-slate-700 bg-slate-950 px-4 py-3 outline-none focus:border-blue-500"
-        />
-
-        <input
-          type="date"
-          value={examDate}
-          onChange={(e) => setExamDate(e.target.value)}
-          className="w-full rounded-lg border border-slate-700 bg-slate-950 px-4 py-3 outline-none focus:border-blue-500"
-        />
-
-        <input
-          type="number"
-          min="1"
-          max="12"
-          value={hoursPerDay}
-          onChange={(e) => setHoursPerDay(e.target.value)}
-          placeholder="Study hours per day"
-          className="w-full rounded-lg border border-slate-700 bg-slate-950 px-4 py-3 outline-none focus:border-blue-500"
-        />
-
-        <select
-          value={level}
-          onChange={(e) => setLevel(e.target.value)}
-          className="w-full rounded-lg border border-slate-700 bg-slate-950 px-4 py-3 outline-none focus:border-blue-500"
-        >
-          <option>Beginner</option>
-          <option>Intermediate</option>
-          <option>Advanced</option>
-        </select>
-
-        <input
-          value={aiSubjects}
-          onChange={(e) => setAiSubjects(e.target.value)}
-          placeholder="Subjects: HTML, CSS, JavaScript, React"
-          className="w-full rounded-lg border border-slate-700 bg-slate-950 px-4 py-3 outline-none focus:border-blue-500"
-        />
-
-        {aiError && (
-          <p className="rounded-lg bg-red-950 p-3 text-sm text-red-400">
-            {aiError}
-          </p>
-        )}
-
-        <button
-          onClick={generatePlan}
-          disabled={aiLoading}
-          className="w-full rounded-lg bg-blue-600 py-3 font-medium hover:bg-blue-500 disabled:opacity-50"
-        >
-          {aiLoading
-            ? "Creating your study plan..."
-            : "Generate AI Study Plan"}
-        </button>
-
-        {aiPlan && (
-          <div className="rounded-xl border border-blue-900 bg-blue-950/40 p-5">
-            <h3 className="mb-3 text-lg font-semibold">
-              Your AI Study Plan
-            </h3>
-
-            <div className="whitespace-pre-wrap text-sm leading-7 text-slate-300">
-              {aiPlan}
+              <button
+                onClick={() => setShowAIForm(false)}
+                className="text-slate-400 hover:text-white"
+              >
+                ✕
+              </button>
             </div>
-          </div>
-        )}
 
-      </div>
+            <div className="space-y-4">
+
+              <input
+                value={goal}
+                onChange={(e) => setGoal(e.target.value)}
+                placeholder="Your study goal"
+                className="w-full rounded-lg border border-slate-700 bg-slate-950 px-4 py-3 outline-none focus:border-blue-500"
+              />
+
+              <input
+                type="date"
+                value={examDate}
+                onChange={(e) => setExamDate(e.target.value)}
+                className="w-full rounded-lg border border-slate-700 bg-slate-950 px-4 py-3 outline-none focus:border-blue-500"
+              />
+
+              <input
+                type="number"
+                min="1"
+                max="12"
+                value={hoursPerDay}
+                onChange={(e) => setHoursPerDay(e.target.value)}
+                placeholder="Study hours per day"
+                className="w-full rounded-lg border border-slate-700 bg-slate-950 px-4 py-3 outline-none focus:border-blue-500"
+              />
+
+              <select
+                value={level}
+                onChange={(e) => setLevel(e.target.value)}
+                className="w-full rounded-lg border border-slate-700 bg-slate-950 px-4 py-3 outline-none focus:border-blue-500"
+              >
+                <option>Beginner</option>
+                <option>Intermediate</option>
+                <option>Advanced</option>
+              </select>
+
+              <input
+                value={aiSubjects}
+                onChange={(e) => setAiSubjects(e.target.value)}
+                placeholder="Subjects: HTML, CSS, JavaScript, React"
+                className="w-full rounded-lg border border-slate-700 bg-slate-950 px-4 py-3 outline-none focus:border-blue-500"
+              />
+
+              {aiError && (
+                <p className="rounded-lg bg-red-950 p-3 text-sm text-red-400">
+                  {aiError}
+                </p>
+              )}
+
+              <button
+                onClick={generatePlan}
+                disabled={aiLoading}
+                className="w-full rounded-lg bg-blue-600 py-3 font-medium hover:bg-blue-500 disabled:opacity-50"
+              >
+                {aiLoading
+                  ? "Creating your study plan..."
+                  : "Generate AI Study Plan"}
+              </button>
+
+              {aiPlan && (
+  <div className="rounded-xl border border-blue-900 bg-blue-950/40 p-5">
+
+    <h3 className="mb-3 text-lg font-semibold">
+      Your AI Study Plan
+    </h3>
+
+    <p className="text-sm leading-7 text-slate-300">
+      {aiPlan}
+    </p>
+
+    <div className="mt-5 space-y-3">
+      {aiTasks.map((task, index) => (
+        <div
+          key={index}
+          className="rounded-lg border border-slate-800 bg-slate-950 p-4"
+        >
+          <div className="flex items-center justify-between gap-4">
+            <div>
+              <h4 className="font-medium">
+                {task.title}
+              </h4>
+
+              <p className="mt-1 text-sm text-slate-400">
+                {task.subject} • {task.deadline}
+              </p>
+            </div>
+
+            <span className="rounded-full bg-blue-950 px-3 py-1 text-xs text-blue-400">
+              {task.priority}
+            </span>
+          </div>
+        </div>
+      ))}
     </div>
+
+    <button
+      onClick={addAIPlanToTasks}
+      className="mt-5 w-full rounded-lg bg-blue-600 py-3 font-medium transition hover:bg-blue-500"
+    >
+      Add Plan to My Tasks
+    </button>
+
   </div>
 )}
+
+            </div>
+          </div>
+        </div>
+      )}
     </main>
   )
 }

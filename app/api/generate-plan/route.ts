@@ -33,7 +33,7 @@ export async function POST(request: Request) {
     const prompt = `
 You are an expert AI study planner.
 
-Create a realistic and personalized study plan for a student.
+Create a realistic personalized study plan.
 
 Student information:
 Goal: ${goal}
@@ -42,46 +42,55 @@ Available study time per day: ${hoursPerDay} hours
 Current level: ${level}
 Subjects: ${subjects}
 
-Create a realistic study plan that:
-- Prioritizes difficult subjects
-- Uses the available study time efficiently
-- Includes revision
-- Includes practice
-- Includes reasonable breaks
-- Avoids unrealistic workloads
+Create a practical study plan.
 
-Return the plan in this structure:
+Return ONLY valid JSON in exactly this format:
 
-Study Plan
+{
+  "strategy": "short explanation",
+  "tasks": [
+    {
+      "title": "task title",
+      "subject": "subject",
+      "deadline": "YYYY-MM-DD",
+      "priority": "High"
+    }
+  ]
+}
 
-Strategy:
-Give a short explanation of the recommended strategy.
-
-Day 1
-- Subject:
-- Task:
-- Duration:
-
-Day 2
-- Subject:
-- Task:
-- Duration:
-
-Continue for the appropriate number of days until the exam/deadline.
-
-Weekly Strategy:
-- Revision:
-- Practice:
-- Rest:
+Rules:
+- Create realistic daily study tasks.
+- Do not overload the student.
+- Include revision and practice.
+- Use the available study hours efficiently.
+- Use High, Medium or Low for priority.
+- The deadline must be a valid date.
+- Create multiple tasks when appropriate.
+- Do not include markdown.
+- Return JSON only.
 `
 
     const response = await ai.models.generateContent({
-      model: "gemini-3.6-flash",
+      model: "gemini-3.5-flash-lite",
       contents: prompt,
     })
 
+    const text = response.text
+
+    if (!text) {
+      throw new Error("AI returned an empty response.")
+    }
+
+    const cleanText = text
+      .replace(/```json/g, "")
+      .replace(/```/g, "")
+      .trim()
+
+    const parsedPlan = JSON.parse(cleanText)
+
     return NextResponse.json({
-      plan: response.text,
+      plan: parsedPlan.strategy,
+      tasks: parsedPlan.tasks,
     })
   } catch (error) {
     console.error("AI plan generation error:", error)
