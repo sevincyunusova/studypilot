@@ -1,7 +1,6 @@
 "use client"
-"use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 
 type Task = {
   id: number
@@ -19,6 +18,18 @@ export default function Home() {
   const [subject, setSubject] = useState("")
   const [deadline, setDeadline] = useState("")
   const [priority, setPriority] = useState("Medium")
+
+  useEffect(() => {
+    const savedTasks = localStorage.getItem("studypilot-tasks")
+
+    if (savedTasks) {
+      setTasks(JSON.parse(savedTasks))
+    }
+  }, [])
+
+  useEffect(() => {
+    localStorage.setItem("studypilot-tasks", JSON.stringify(tasks))
+  }, [tasks])
 
   const addTask = () => {
     if (!title || !subject || !deadline) return
@@ -110,6 +121,7 @@ export default function Home() {
                   <div className="flex items-center justify-between">
                     <div>
                       <h3 className="font-semibold">{task.title}</h3>
+
                       <p className="mt-1 text-sm text-slate-400">
                         {task.subject} • Deadline: {task.deadline}
                       </p>
@@ -146,6 +158,7 @@ export default function Home() {
         {showForm && (
           <div className="fixed inset-0 flex items-center justify-center bg-black/70 px-4">
             <div className="w-full max-w-md rounded-xl border border-slate-800 bg-slate-900 p-6">
+
               <div className="mb-6 flex items-center justify-between">
                 <h2 className="text-xl font-semibold">
                   Add Study Task
@@ -160,6 +173,7 @@ export default function Home() {
               </div>
 
               <div className="space-y-4">
+
                 <div>
                   <label className="mb-2 block text-sm text-slate-300">
                     Task title
@@ -221,10 +235,12 @@ export default function Home() {
                 >
                   Add Task
                 </button>
+
               </div>
             </div>
           </div>
         )}
+
       </div>
     </main>
   )
