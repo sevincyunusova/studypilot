@@ -33,6 +33,9 @@ export default function Home() {
   const [deadline, setDeadline] = useState("")
   const [priority, setPriority] = useState("Medium")
 
+  const [searchQuery, setSearchQuery] = useState("")
+  const [taskStatus, setTaskStatus] = useState("All")
+
   const [aiTasks, setAiTasks] = useState<
     {
       title: string
@@ -40,7 +43,7 @@ export default function Home() {
       deadline: string
       priority: string
     }[]
-  >([]) 
+  >([])
 
   useEffect(() => {
     const savedTasks = localStorage.getItem("studypilot-tasks")
@@ -128,76 +131,76 @@ export default function Home() {
     )
   }
 
- const generatePlan = async () => {
-  if (
-    !goal ||
-    !examDate ||
-    !hoursPerDay ||
-    !level ||
-    !aiSubjects
-  ) {
-    setAiError("Please complete all fields.")
-    return
-  }
-
-  try {
-    setAiLoading(true)
-    setAiError("")
-    setAiPlan("")
-    setAiTasks([])
-
-    const response = await fetch("/api/generate-plan", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        goal,
-        examDate,
-        hoursPerDay,
-        level,
-        subjects: aiSubjects,
-      }),
-    })
-
-    const data = await response.json()
-
-    if (!response.ok) {
-      throw new Error(data.error || "Something went wrong.")
+  const generatePlan = async () => {
+    if (
+      !goal ||
+      !examDate ||
+      !hoursPerDay ||
+      !level ||
+      !aiSubjects
+    ) {
+      setAiError("Please complete all fields.")
+      return
     }
 
-    setAiPlan(data.plan)
-    setAiTasks(data.tasks || [])
-  } catch (error) {
-    console.error(error)
+    try {
+      setAiLoading(true)
+      setAiError("")
+      setAiPlan("")
+      setAiTasks([])
 
-    setAiError(
-      "Failed to generate your study plan. Please try again."
-    )
-  } finally {
-    setAiLoading(false)
+      const response = await fetch("/api/generate-plan", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          goal,
+          examDate,
+          hoursPerDay,
+          level,
+          subjects: aiSubjects,
+        }),
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.error || "Something went wrong.")
+      }
+
+      setAiPlan(data.plan)
+      setAiTasks(data.tasks || [])
+    } catch (error) {
+      console.error(error)
+
+      setAiError(
+        "Failed to generate your study plan. Please try again."
+      )
+    } finally {
+      setAiLoading(false)
+    }
   }
-}
 
-const addAIPlanToTasks = () => {
-  const newTasks: Task[] = aiTasks.map((task, index) => ({
-    id: Date.now() + index,
-    title: task.title,
-    subject: task.subject,
-    deadline: task.deadline,
-    priority: task.priority,
-    completed: false,
-  }))
+  const addAIPlanToTasks = () => {
+    const newTasks: Task[] = aiTasks.map((task, index) => ({
+      id: Date.now() + index,
+      title: task.title,
+      subject: task.subject,
+      deadline: task.deadline,
+      priority: task.priority,
+      completed: false,
+    }))
 
-  setTasks((currentTasks) => [
-    ...currentTasks,
-    ...newTasks,
-  ])
+    setTasks((currentTasks) => [
+      ...currentTasks,
+      ...newTasks,
+    ])
 
-  setShowAIForm(false)
-  setAiTasks([])
-  setAiPlan("")
-}
+    setShowAIForm(false)
+    setAiTasks([])
+    setAiPlan("")
+  }
 
   const completedTasks = tasks.filter(
     (task) => task.completed
@@ -213,13 +216,30 @@ const addAIPlanToTasks = () => {
     ...Array.from(new Set(tasks.map((task) => task.subject))),
   ]
 
-  const filteredTasks =
-    selectedSubject === "All"
-      ? tasks
-      : tasks.filter(
-        (task) => task.subject === selectedSubject
-      )
+  const filteredTasks = tasks.filter((task) => {
+    const matchesSubject =
+      selectedSubject === "All" ||
+      task.subject === selectedSubject
 
+    const matchesSearch =
+      task.title
+        .toLowerCase()
+        .includes(searchQuery.toLowerCase()) ||
+      task.subject
+        .toLowerCase()
+        .includes(searchQuery.toLowerCase())
+
+    const matchesStatus =
+      taskStatus === "All" ||
+      (taskStatus === "Active" && !task.completed) ||
+      (taskStatus === "Completed" && task.completed)
+
+    return (
+      matchesSubject &&
+      matchesSearch &&
+      matchesStatus
+    )
+  })
   return (
     <main className="min-h-screen bg-slate-950 text-white">
       <div className="mx-auto max-w-7xl px-6 py-10">
@@ -292,30 +312,65 @@ const addAIPlanToTasks = () => {
 
         <section className="mt-8 rounded-xl border border-slate-800 bg-slate-900 p-6">
 
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="space-y-5">
 
-            <h2 className="text-xl font-semibold">
-              Today&apos;s Study Plan
-            </h2>
+  <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
 
-            <div className="flex flex-wrap gap-2">
+    <h2 className="text-xl font-semibold">
+      Today&apos;s Study Plan
+    </h2>
 
-              {subjects.map((item) => (
-                <button
-                  key={item}
-                  onClick={() => setSelectedSubject(item)}
-                  className={`rounded-lg px-4 py-2 text-sm font-medium transition ${selectedSubject === item
-                    ? "bg-blue-600 text-white"
-                    : "bg-slate-800 text-slate-300 hover:bg-slate-700"
-                    }`}
-                >
-                  {item}
-                </button>
-              ))}
+    <div className="flex flex-wrap gap-2">
 
-            </div>
+      {subjects.map((item) => (
+        <button
+          key={item}
+          onClick={() => setSelectedSubject(item)}
+          className={`rounded-lg px-4 py-2 text-sm font-medium transition ${
+            selectedSubject === item
+              ? "bg-blue-600 text-white"
+              : "bg-slate-800 text-slate-300 hover:bg-slate-700"
+          }`}
+        >
+          {item}
+        </button>
+      ))}
 
-          </div>
+    </div>
+
+  </div>
+
+  <div className="flex flex-col gap-3 md:flex-row">
+
+    <input
+      type="text"
+      value={searchQuery}
+      onChange={(e) => setSearchQuery(e.target.value)}
+      placeholder="Search tasks..."
+      className="flex-1 rounded-lg border border-slate-700 bg-slate-950 px-4 py-3 text-sm outline-none transition focus:border-blue-500"
+    />
+
+    <div className="flex gap-2">
+
+      {["All", "Active", "Completed"].map((status) => (
+        <button
+          key={status}
+          onClick={() => setTaskStatus(status)}
+          className={`rounded-lg px-4 py-2 text-sm font-medium transition ${
+            taskStatus === status
+              ? "bg-blue-600 text-white"
+              : "bg-slate-800 text-slate-300 hover:bg-slate-700"
+          }`}
+        >
+          {status}
+        </button>
+      ))}
+
+    </div>
+
+  </div>
+
+</div>
 
           {filteredTasks.length === 0 ? (
 
@@ -625,50 +680,50 @@ const addAIPlanToTasks = () => {
               </button>
 
               {aiPlan && (
-  <div className="rounded-xl border border-blue-900 bg-blue-950/40 p-5">
+                <div className="rounded-xl border border-blue-900 bg-blue-950/40 p-5">
 
-    <h3 className="mb-3 text-lg font-semibold">
-      Your AI Study Plan
-    </h3>
+                  <h3 className="mb-3 text-lg font-semibold">
+                    Your AI Study Plan
+                  </h3>
 
-    <p className="text-sm leading-7 text-slate-300">
-      {aiPlan}
-    </p>
+                  <p className="text-sm leading-7 text-slate-300">
+                    {aiPlan}
+                  </p>
 
-    <div className="mt-5 space-y-3">
-      {aiTasks.map((task, index) => (
-        <div
-          key={index}
-          className="rounded-lg border border-slate-800 bg-slate-950 p-4"
-        >
-          <div className="flex items-center justify-between gap-4">
-            <div>
-              <h4 className="font-medium">
-                {task.title}
-              </h4>
+                  <div className="mt-5 space-y-3">
+                    {aiTasks.map((task, index) => (
+                      <div
+                        key={index}
+                        className="rounded-lg border border-slate-800 bg-slate-950 p-4"
+                      >
+                        <div className="flex items-center justify-between gap-4">
+                          <div>
+                            <h4 className="font-medium">
+                              {task.title}
+                            </h4>
 
-              <p className="mt-1 text-sm text-slate-400">
-                {task.subject} • {task.deadline}
-              </p>
-            </div>
+                            <p className="mt-1 text-sm text-slate-400">
+                              {task.subject} • {task.deadline}
+                            </p>
+                          </div>
 
-            <span className="rounded-full bg-blue-950 px-3 py-1 text-xs text-blue-400">
-              {task.priority}
-            </span>
-          </div>
-        </div>
-      ))}
-    </div>
+                          <span className="rounded-full bg-blue-950 px-3 py-1 text-xs text-blue-400">
+                            {task.priority}
+                          </span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
 
-    <button
-      onClick={addAIPlanToTasks}
-      className="mt-5 w-full rounded-lg bg-blue-600 py-3 font-medium transition hover:bg-blue-500"
-    >
-      Add Plan to My Tasks
-    </button>
+                  <button
+                    onClick={addAIPlanToTasks}
+                    className="mt-5 w-full rounded-lg bg-blue-600 py-3 font-medium transition hover:bg-blue-500"
+                  >
+                    Add Plan to My Tasks
+                  </button>
 
-  </div>
-)}
+                </div>
+              )}
 
             </div>
           </div>
