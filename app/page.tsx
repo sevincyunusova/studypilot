@@ -132,14 +132,41 @@ export default function Home() {
   }
 
   const generatePlan = async () => {
-    if (
-      !goal ||
-      !examDate ||
-      !hoursPerDay ||
-      !level ||
-      !aiSubjects
-    ) {
-      setAiError("Please complete all fields.")
+    if (!goal.trim()) {
+      setAiError("Please enter your study goal.")
+      return
+    }
+
+    if (!examDate) {
+      setAiError("Please select your exam date.")
+      return
+    }
+
+    const selectedDate = new Date(examDate)
+    const today = new Date()
+
+    today.setHours(0, 0, 0, 0)
+    selectedDate.setHours(0, 0, 0, 0)
+
+    if (selectedDate <= today) {
+      setAiError("Exam date must be in the future.")
+      return
+    }
+
+    const studyHours = Number(hoursPerDay)
+
+    if (!hoursPerDay || Number.isNaN(studyHours)) {
+      setAiError("Please enter your daily study hours.")
+      return
+    }
+
+    if (studyHours < 1 || studyHours > 12) {
+      setAiError("Study hours must be between 1 and 12 hours per day.")
+      return
+    }
+
+    if (!aiSubjects.trim()) {
+      setAiError("Please enter at least one subject.")
       return
     }
 
@@ -172,35 +199,35 @@ export default function Home() {
       setAiPlan(data.plan)
       setAiTasks(data.tasks || [])
     } catch (error) {
-  console.error("AI plan generation error:", error)
+      console.error("AI plan generation error:", error)
 
-  const errorMessage =
-    error instanceof Error
-      ? error.message.toLowerCase()
-      : ""
+      const errorMessage =
+        error instanceof Error
+          ? error.message.toLowerCase()
+          : ""
 
-  if (
-    errorMessage.includes("503") ||
-    errorMessage.includes("unavailable") ||
-    errorMessage.includes("high demand")
-  ) {
-    setAiError(
-      "The AI service is temporarily busy. Please wait a moment and try again."
-    )
-  } else if (
-    errorMessage.includes("429") ||
-    errorMessage.includes("quota") ||
-    errorMessage.includes("rate limit")
-  ) {
-    setAiError(
-      "The AI service has reached its usage limit. Please try again later."
-    )
-  } else {
-    setAiError(
-      "We couldn't generate your study plan right now. Please try again."
-    )
-  }
-} finally {
+      if (
+        errorMessage.includes("503") ||
+        errorMessage.includes("unavailable") ||
+        errorMessage.includes("high demand")
+      ) {
+        setAiError(
+          "The AI service is temporarily busy. Please wait a moment and try again."
+        )
+      } else if (
+        errorMessage.includes("429") ||
+        errorMessage.includes("quota") ||
+        errorMessage.includes("rate limit")
+      ) {
+        setAiError(
+          "The AI service has reached its usage limit. Please try again later."
+        )
+      } else {
+        setAiError(
+          "We couldn't generate your study plan right now. Please try again."
+        )
+      }
+    } finally {
       setAiLoading(false)
     }
   }
