@@ -1,36 +1,168 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# StudyPilot
+
+StudyPilot is an AI-powered study planner built with Next.js. It helps students organize study tasks, track progress, manage deadlines, and generate personalized study plans with AI.
+
+## Live Demo
+
+[https://studypilot-coral.vercel.app/](https://studypilot-coral.vercel.app/)
+
+## Features
+
+* User authentication with Supabase
+* Create a new account and sign in
+* Add, edit, complete, and delete study tasks
+* Set subjects, deadlines, and priorities
+* Search and filter study tasks
+* Track overall study progress
+* View upcoming and overdue deadlines
+* AI-powered personalized study plan generation
+* Add AI-generated tasks to the study planner
+* Responsive design for desktop and mobile
+* Supabase database connection health check
+
+## Tech Stack
+
+* Next.js
+* React
+* TypeScript
+* Tailwind CSS
+* Supabase
+* Google Gemini API
+* Vercel
+
+## Project Structure
+
+```text
+app/
+├── api/
+│   └── generate-plan/
+├── login/
+├── signup/
+├── health/
+├── globals.css
+├── layout.tsx
+└── page.tsx
+
+lib/
+├── supabase.ts
+└── supabase-server.ts
+
+proxy.ts
+
+```
 
 ## Getting Started
 
-First, run the development server:
+### Clone the repository
+
+```bash
+git clone YOUR_GITHUB_REPOSITORY_URL
+cd studypilot
+
+```
+
+### Install dependencies
+
+```bash
+npm install
+
+```
+
+### Create environment variables
+
+Create a `.env.local` file in the project root:
+
+```env
+GEMINI_API_KEY=your_gemini_api_key
+NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
+NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=your_supabase_publishable_key
+
+```
+
+### Start the development server
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```text
+http://localhost:3000
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```
 
-## Learn More
+## Environment Variables
 
-To learn more about Next.js, take a look at the following resources:
+The project uses the following environment variables:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+| Variable | Purpose |
+| --- | --- |
+| `GEMINI_API_KEY` | Gemini API access for AI study plan generation |
+| `NEXT_PUBLIC_SUPABASE_URL` | Supabase project URL |
+| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Supabase public client key |
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Never commit `.env.local` or real API keys to the repository.
 
-## Deploy on Vercel
+## Deployment
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+The project is deployed with Vercel.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Every push to the connected GitHub repository can trigger a new deployment.
+
+Live application:
+
+[https://studypilot-coral.vercel.app/](https://studypilot-coral.vercel.app/)
+
+## Health Check
+
+The application includes a database health-check page that verifies the Supabase connection and fetches data from the database.
+
+```text
+/health
+
+```
+
+## Authentication Flow
+
+Unauthenticated users are directed to the account creation page.
+
+Users can:
+
+1. Create a new StudyPilot account.
+2. Navigate to Sign In if they already have an account.
+3. Sign in with their existing credentials.
+4. Access the StudyPilot dashboard after authentication.
+
+## AI Study Planner
+
+Users can provide:
+
+* Study goal
+* Exam date
+* Available study hours per day
+* Current level
+* Subjects
+
+StudyPilot sends this information to the AI service and generates a personalized study plan together with recommended study tasks.
+
+## Development
+
+Build the project for production:
+
+```bash
+npm run build
+
+```
+
+Start the production server:
+
+```bash
+npm start
+
+```
+
+## Project Status
+
+StudyPilot is currently under active development as part of a frontend development project and assignment.

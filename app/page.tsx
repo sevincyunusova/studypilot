@@ -233,25 +233,19 @@ export default function Home() {
   }
 
   const addAIPlanToTasks = () => {
-    if (aiTasks.length === 0) {
-      return
-    }
-
     setTasks((currentTasks) => {
-      const existingTasks = new Set(
-        currentTasks.map(
-          (task) =>
-            `${task.title.toLowerCase()}-${task.subject.toLowerCase()}`
-        )
-      )
-
       const newTasks: Task[] = aiTasks
-        .filter((task) => {
-          const taskKey =
-            `${task.title.toLowerCase()}-${task.subject.toLowerCase()}`
-
-          return !existingTasks.has(taskKey)
-        })
+        .filter(
+          (aiTask) =>
+            !currentTasks.some(
+              (existingTask) =>
+                existingTask.title.toLowerCase() ===
+                aiTask.title.toLowerCase() &&
+                existingTask.subject.toLowerCase() ===
+                aiTask.subject.toLowerCase() &&
+                existingTask.deadline === aiTask.deadline
+            )
+        )
         .map((task, index) => ({
           id: Date.now() + index,
           title: task.title,
@@ -336,6 +330,39 @@ export default function Home() {
       matchesStatus
     )
   })
+  const getDeadlineStatus = (deadline: string, completed: boolean) => {
+    if (completed) {
+      return {
+        label: "Completed",
+        className: "text-green-400",
+      }
+    }
+
+    const today = new Date()
+    today.setHours(0, 0, 0, 0)
+
+    const deadlineDate = new Date(deadline)
+    deadlineDate.setHours(0, 0, 0, 0)
+
+    if (deadlineDate < today) {
+      return {
+        label: "Overdue",
+        className: "text-red-400",
+      }
+    }
+
+    if (deadlineDate.getTime() === today.getTime()) {
+      return {
+        label: "Due today",
+        className: "text-yellow-400",
+      }
+    }
+
+    return {
+      label: "Upcoming",
+      className: "text-slate-400",
+    }
+  }
   return (
     <main className="min-h-screen bg-slate-950 text-white">
       <div className="mx-auto max-w-7xl px-6 py-10">
@@ -480,8 +507,16 @@ export default function Home() {
                     </div>
 
                     <div className="text-right">
+
                       <p className="text-sm font-medium">
                         {task.deadline}
+                      </p>
+
+                      <p
+                        className={`mt-1 text-xs font-medium ${getDeadlineStatus(task.deadline, task.completed).className
+                          }`}
+                      >
+                        {getDeadlineStatus(task.deadline, task.completed).label}
                       </p>
 
                       <span
@@ -494,6 +529,7 @@ export default function Home() {
                       >
                         {task.priority} priority
                       </span>
+
                     </div>
 
                   </div>
@@ -715,9 +751,28 @@ export default function Home() {
                       {task.title}
                     </h3>
 
-                    <p className="mt-1 text-sm text-slate-400">
-                      {task.subject} • Deadline: {task.deadline}
-                    </p>
+                    <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm">
+
+                      <span className="text-slate-400">
+                        {task.subject}
+                      </span>
+
+                      <span className="text-slate-600">
+                        •
+                      </span>
+
+                      <span className="text-slate-400">
+                        Deadline: {task.deadline}
+                      </span>
+
+                      <span
+                        className={`font-medium ${getDeadlineStatus(task.deadline, task.completed).className
+                          }`}
+                      >
+                        {getDeadlineStatus(task.deadline, task.completed).label}
+                      </span>
+
+                    </div>
 
                   </div>
 
