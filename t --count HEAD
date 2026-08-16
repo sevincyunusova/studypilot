@@ -1,0 +1,15 @@
+[33md1b9db2[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m)[m refactor: consolidate recent changes
+[33mfbf7a71[m feat: improve task empty states
+[33m47abd97[m fix: improve responsive dashboard layout
+[33m3a99347[m feat: add AI planner form validation
+[33mbfbe6b3[m fix: improve AI error handling
+[33maa4a7c6[m feat: add AI planner loading state
+[33m345d415[m feat: improve AI study plan result UI
+[33m34b2fd7[m fix: prevent duplicate AI study tasks
+[33m5a94706[m fix: resolve dashboard JSX structure error
+[33mb74937a[m feat: add dashboard statistics and deadlines
+[33m0fe9596[m feat: add task search and status filters
+[33mb1eec7e[m feat: convert AI study plan into tasks
+[33m6d87275[m feat: integrate Gemini AI study planner
+[33m0d031a2[m feat: add subject filtering
+[33m6ffb39c[m feat: add edit and delete task actions
