@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
-
+import AIChat from "@/components/AIChat"
 type Task = {
   id: number
   title: string
@@ -838,7 +838,9 @@ export default function Home() {
           </div>
 
         </section>
-
+        <section className="mt-8">
+          <AIChat />
+        </section>
         {showForm && (
 
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-4">
