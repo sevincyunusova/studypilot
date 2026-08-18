@@ -50,9 +50,13 @@ export default function AIChat() {
       return;
     }
 
-    bottomRef.current?.scrollIntoView({
-      behavior: "smooth",
-    });
+    const container = messagesContainerRef.current;
+
+    if (!container) {
+      return;
+    }
+
+    container.scrollTop = container.scrollHeight;
   }, [messages, isAtBottom]);
 
   async function handleSubmit(
@@ -143,8 +147,6 @@ export default function AIChat() {
             ↓ Jump to latest
           </button>
         )}
-
-        <div ref={bottomRef} />
 
         <div ref={bottomRef} />
       </div>
