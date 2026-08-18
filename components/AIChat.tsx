@@ -36,6 +36,14 @@ export default function AIChat() {
     setIsAtBottom(distanceFromBottom < 80);
   }
 
+  function jumpToLatest() {
+    bottomRef.current?.scrollIntoView({
+      behavior: "smooth",
+    });
+
+    setIsAtBottom(true);
+  }
+
   useEffect(() => {
     if (!isAtBottom) {
       return;
@@ -69,7 +77,7 @@ export default function AIChat() {
       <div
         ref={messagesContainerRef}
         onScroll={handleScroll}
-        className="max-h-[500px] min-h-[400px] space-y-4 overflow-y-auto rounded-xl border bg-white p-4 shadow-sm"
+        className="relative max-h-[500px] min-h-[400px] space-y-4 overflow-y-auto rounded-xl border bg-white p-4 shadow-sm"
       >
         {messages.length === 0 && (
           <div className="flex min-h-[360px] items-center justify-center text-center text-gray-500">
@@ -88,18 +96,16 @@ export default function AIChat() {
         {messages.map((message) => (
           <div
             key={message.id}
-            className={`flex ${
-              message.role === "user"
+            className={`flex ${message.role === "user"
                 ? "justify-end"
                 : "justify-start"
-            }`}
+              }`}
           >
             <div
-              className={`max-w-[80%] rounded-2xl px-4 py-3 ${
-                message.role === "user"
+              className={`max-w-[80%] rounded-2xl px-4 py-3 ${message.role === "user"
                   ? "bg-blue-600 text-white"
                   : "bg-gray-100 text-gray-900"
-              }`}
+                }`}
             >
               {message.parts.map((part, index) => {
                 if (part.type === "text") {
@@ -127,6 +133,18 @@ export default function AIChat() {
           </div>
         )}
 
+        {!isAtBottom && messages.length > 0 && (
+          <button
+            type="button"
+            onClick={jumpToLatest}
+            className="sticky bottom-2 left-1/2 z-10 -translate-x-1/2 rounded-full border bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-md hover:bg-gray-50"
+          >
+            ↓ Jump to latest
+          </button>
+        )}
+
+        <div ref={bottomRef} />
+        
         <div ref={bottomRef} />
       </div>
 
