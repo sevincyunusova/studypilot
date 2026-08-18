@@ -16,6 +16,7 @@ export default function AIChat() {
     sendMessage,
     status,
     stop,
+    error,
   } = useChat();
 
   const isStreaming = status === "streaming";
@@ -147,6 +148,12 @@ export default function AIChat() {
 
         <div ref={bottomRef} />
       </div>
+
+      {error && (
+        <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+          Something went wrong. Please try again.
+        </div>
+      )}
 
       <form
         onSubmit={handleSubmit}

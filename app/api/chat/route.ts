@@ -1,8 +1,5 @@
-import { streamText, convertToModelMessages } from "ai";
-import {
-  studyPilotModel,
-  studyPilotSystemPrompt,
-} from "@/lib/ai";
+import { streamText } from "ai";
+import { studyPilotModel, studyPilotSystemPrompt } from "@/lib/ai";
 
 export async function POST(req: Request) {
   try {
@@ -11,23 +8,18 @@ export async function POST(req: Request) {
     const result = streamText({
       model: studyPilotModel,
       system: studyPilotSystemPrompt,
-      messages: await convertToModelMessages(messages),
+      messages,
     });
 
     return result.toUIMessageStreamResponse();
   } catch (error) {
     console.error("Chat API error:", error);
 
-    return new Response(
-      JSON.stringify({
-        error: "Failed to generate a response.",
-      }),
+    return Response.json(
       {
-        status: 500,
-        headers: {
-          "Content-Type": "application/json",
-        },
+        error: "Unable to generate a response. Please try again.",
       },
+      { status: 500 },
     );
   }
 }
