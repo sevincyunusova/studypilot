@@ -97,14 +97,14 @@ export default function AIChat() {
           <div
             key={message.id}
             className={`flex ${message.role === "user"
-                ? "justify-end"
-                : "justify-start"
+              ? "justify-end"
+              : "justify-start"
               }`}
           >
             <div
               className={`max-w-[80%] rounded-2xl px-4 py-3 ${message.role === "user"
-                  ? "bg-blue-600 text-white"
-                  : "bg-gray-100 text-gray-900"
+                ? "bg-blue-600 text-white"
+                : "bg-gray-100 text-gray-900"
                 }`}
             >
               {message.parts.map((part, index) => {
@@ -144,13 +144,13 @@ export default function AIChat() {
         )}
 
         <div ref={bottomRef} />
-        
+
         <div ref={bottomRef} />
       </div>
 
       <form
         onSubmit={handleSubmit}
-        className="flex gap-2"
+        className="flex flex-col gap-2 sm:flex-row"
       >
         <input
           value={input}
@@ -164,7 +164,7 @@ export default function AIChat() {
           <button
             type="button"
             onClick={stop}
-            className="rounded-xl bg-red-600 px-5 py-3 font-medium text-white"
+            className="w-full rounded-xl bg-red-600 px-5 py-3 font-medium text-white sm:w-auto"
           >
             Stop
           </button>
@@ -172,8 +172,7 @@ export default function AIChat() {
           <button
             type="submit"
             disabled={!input.trim()}
-            className="rounded-xl bg-blue-600 px-5 py-3 font-medium text-white disabled:opacity-50"
-          >
+            className="w-full rounded-xl bg-blue-600 px-5 py-3 font-medium text-white disabled:opacity-50 sm:w-auto"          >
             Send
           </button>
         )}
