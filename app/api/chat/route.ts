@@ -1,5 +1,7 @@
 import { convertToModelMessages, streamText, type UIMessage } from "ai";
 import { studyPilotModel, studyPilotSystemPrompt } from "@/lib/ai";
+import { studyTool } from "./tools";
+
 export async function POST(req: Request) {
   try {
     const { messages }: { messages: UIMessage[] } = await req.json();
@@ -8,6 +10,9 @@ export async function POST(req: Request) {
       model: studyPilotModel,
       system: studyPilotSystemPrompt,
       messages: await convertToModelMessages(messages),
+      tools: {
+        studyTool,
+      },
     });
 
     return result.toUIMessageStreamResponse();
