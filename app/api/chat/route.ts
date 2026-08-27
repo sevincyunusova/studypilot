@@ -13,6 +13,8 @@ export async function POST(req: Request) {
       tools: {
         studyTool,
       },
+      toolChoice: "required",
+
     });
 
     return result.toUIMessageStreamResponse();

@@ -124,6 +124,77 @@ export default function AIChat() {
                   );
                 }
 
+                if (part.type === "tool-studyTool") {
+                  if (part.state === "input-streaming") {
+                    return (
+                      <div
+                        key={`${message.id}-${index}`}
+                        className="rounded-xl border border-blue-200 bg-blue-50 p-3 text-sm text-blue-700"
+                      >
+                        Preparing study information...
+                      </div>
+                    );
+                  }
+
+                  if (part.state === "input-available") {
+                    return (
+                      <div
+                        key={`${message.id}-${index}`}
+                        className="rounded-xl border border-yellow-200 bg-yellow-50 p-3 text-sm text-yellow-700"
+                      >
+                        Getting study information for{" "}
+                        <strong>{part.input.subject}</strong>...
+                      </div>
+                    );
+                  }
+
+                  if (part.state === "output-available") {
+                    const result = part.output;
+
+                    return (
+                      <div
+                        key={`${message.id}-${index}`}
+                        className="mt-3 rounded-xl border bg-white p-4 shadow-sm"
+                      >
+                        <h3 className="font-semibold text-gray-900">
+                          {result.subject}
+                        </h3>
+
+                        <p className="mt-1 text-sm text-gray-600">
+                          Difficulty: {result.difficulty}
+                        </p>
+
+                        <p className="mt-1 text-sm text-gray-600">
+                          Recommended time: {result.recommendedHours} hours
+                        </p>
+
+                        <div className="mt-3">
+                          <p className="text-sm font-medium text-gray-900">
+                            Topics
+                          </p>
+
+                          <ul className="mt-1 list-disc pl-5 text-sm text-gray-600">
+                            {result.topics.map((topic: string) => (
+                              <li key={topic}>{topic}</li>
+                            ))}
+                          </ul>
+                        </div>
+                      </div>
+                    );
+                  }
+
+                  if (part.state === "output-error") {
+                    return (
+                      <div
+                        key={`${message.id}-${index}`}
+                        className="rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-red-700"
+                      >
+                        Failed to load study information. Please try again.
+                      </div>
+                    );
+                  }
+                }
+
                 return null;
               })}
             </div>
