@@ -3,6 +3,17 @@
 import { useChat } from "@ai-sdk/react";
 import { useEffect, useRef, useState } from "react";
 
+type StudyToolResult = {
+  subject: string;
+  difficulty: string;
+  recommendedHours: number;
+  topics: string[];
+};
+
+type StudyToolInput = {
+  subject: string;
+};
+
 export default function AIChat() {
   const [input, setInput] = useState("");
 
@@ -101,16 +112,18 @@ export default function AIChat() {
         {messages.map((message) => (
           <div
             key={message.id}
-            className={`flex ${message.role === "user"
-              ? "justify-end"
-              : "justify-start"
-              }`}
+            className={`flex ${
+              message.role === "user"
+                ? "justify-end"
+                : "justify-start"
+            }`}
           >
             <div
-              className={`max-w-[80%] rounded-2xl px-4 py-3 ${message.role === "user"
-                ? "bg-blue-600 text-white"
-                : "bg-gray-100 text-gray-900"
-                }`}
+              className={`max-w-[80%] rounded-2xl px-4 py-3 ${
+                message.role === "user"
+                  ? "bg-blue-600 text-white"
+                  : "bg-gray-100 text-gray-900"
+              }`}
             >
               {message.parts.map((part, index) => {
                 if (part.type === "text") {
@@ -137,19 +150,23 @@ export default function AIChat() {
                   }
 
                   if (part.state === "input-available") {
+                    const toolInput =
+                      part.input as StudyToolInput;
+
                     return (
                       <div
                         key={`${message.id}-${index}`}
                         className="rounded-xl border border-yellow-200 bg-yellow-50 p-3 text-sm text-yellow-700"
                       >
                         Getting study information for{" "}
-                        <strong>{part.input.subject}</strong>...
+                        <strong>{toolInput.subject}</strong>...
                       </div>
                     );
                   }
 
                   if (part.state === "output-available") {
-                    const result = part.output;
+                    const result =
+                      part.output as StudyToolResult;
 
                     return (
                       <div
@@ -165,7 +182,8 @@ export default function AIChat() {
                         </p>
 
                         <p className="mt-1 text-sm text-gray-600">
-                          Recommended time: {result.recommendedHours} hours
+                          Recommended time:{" "}
+                          {result.recommendedHours} hours
                         </p>
 
                         <div className="mt-3">
@@ -174,7 +192,7 @@ export default function AIChat() {
                           </p>
 
                           <ul className="mt-1 list-disc pl-5 text-sm text-gray-600">
-                            {result.topics.map((topic: string) => (
+                            {result.topics.map((topic) => (
                               <li key={topic}>{topic}</li>
                             ))}
                           </ul>
@@ -252,7 +270,8 @@ export default function AIChat() {
           <button
             type="submit"
             disabled={!input.trim()}
-            className="w-full rounded-xl bg-blue-600 px-5 py-3 font-medium text-white disabled:opacity-50 sm:w-auto"          >
+            className="w-full rounded-xl bg-blue-600 px-5 py-3 font-medium text-white disabled:opacity-50 sm:w-auto"
+          >
             Send
           </button>
         )}
