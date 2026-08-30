@@ -31,7 +31,6 @@ export async function proxy(request: NextRequest) {
       },
     }
   )
-
   const {
     data: { user },
   } = await supabase.auth.getUser()

@@ -28,10 +28,12 @@ export default function AIChat() {
     status,
     stop,
     error,
+    regenerate,
   } = useChat();
 
   const isStreaming = status === "streaming";
   const isSubmitted = status === "submitted";
+  const isRetrying = isSubmitted || isStreaming;
 
   function handleScroll() {
     const container = messagesContainerRef.current;
@@ -88,6 +90,14 @@ export default function AIChat() {
     });
   }
 
+  async function handleRetry() {
+    if (isRetrying) {
+      return;
+    }
+
+    await regenerate();
+  }
+
   return (
     <section className="mx-auto flex w-full max-w-3xl flex-col gap-4 p-4">
       <div
@@ -112,18 +122,16 @@ export default function AIChat() {
         {messages.map((message) => (
           <div
             key={message.id}
-            className={`flex ${
-              message.role === "user"
+            className={`flex ${message.role === "user"
                 ? "justify-end"
                 : "justify-start"
-            }`}
+              }`}
           >
             <div
-              className={`max-w-[80%] rounded-2xl px-4 py-3 ${
-                message.role === "user"
+              className={`max-w-[80%] rounded-2xl px-4 py-3 ${message.role === "user"
                   ? "bg-blue-600 text-white"
                   : "bg-gray-100 text-gray-900"
-              }`}
+                }`}
             >
               {message.parts.map((part, index) => {
                 if (part.type === "text") {
@@ -241,8 +249,23 @@ export default function AIChat() {
       </div>
 
       {error && (
-        <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-          Something went wrong. Please try again.
+        <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-4 text-sm text-red-700">
+          <p className="font-medium">
+            We couldn&apos;t finish that response.
+          </p>
+
+          <p className="mt-1 text-red-600">
+            The connection was interrupted. Your message is still here.
+          </p>
+
+          <button
+            type="button"
+            onClick={handleRetry}
+            disabled={isRetrying}
+            className="mt-3 rounded-lg bg-red-600 px-4 py-2 font-medium text-white transition hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            {isRetrying ? "Retrying..." : "Try again"}
+          </button>
         </div>
       )}
 
