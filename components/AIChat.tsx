@@ -14,6 +14,12 @@ type StudyToolInput = {
   subject: string;
 };
 
+const examplePrompts = [
+  "Create a 7-day study plan for JavaScript",
+  "Explain JavaScript promises in simple terms",
+  "Help me prepare for a frontend interview",
+];
+
 export default function AIChat() {
   const [input, setInput] = useState("");
 
@@ -98,6 +104,14 @@ export default function AIChat() {
     await regenerate();
   }
 
+  function handleExamplePrompt(prompt: string) {
+    if (isSubmitted || isStreaming) {
+      return;
+    }
+
+    setInput(prompt);
+  }
+
   return (
     <section className="mx-auto flex w-full max-w-3xl flex-col gap-4 p-4">
       <div
@@ -106,15 +120,29 @@ export default function AIChat() {
         className="relative max-h-[500px] min-h-[400px] space-y-4 overflow-y-auto rounded-xl border bg-white p-4 shadow-sm"
       >
         {messages.length === 0 && (
-          <div className="flex min-h-[360px] items-center justify-center text-center text-gray-500">
-            <div>
-              <h2 className="text-xl font-semibold text-gray-900">
-                StudyPilot AI
+          <div className="flex min-h-[360px] items-center justify-center text-center">
+            <div className="w-full max-w-xl">
+              <h2 className="text-2xl font-semibold text-gray-900">
+                Welcome to StudyPilot AI
               </h2>
 
-              <p className="mt-2">
-                Ask me anything about your studies.
+              <p className="mt-2 text-gray-500">
+                Start your study session by asking a question or choosing an
+                example below.
               </p>
+
+              <div className="mt-6 grid gap-3 text-left">
+                {examplePrompts.map((prompt) => (
+                  <button
+                    key={prompt}
+                    type="button"
+                    onClick={() => handleExamplePrompt(prompt)}
+                    className="rounded-xl border border-gray-200 bg-white px-4 py-3 text-left text-sm text-gray-700 shadow-sm transition hover:border-blue-300 hover:bg-blue-50 hover:text-blue-700"
+                  >
+                    {prompt}
+                  </button>
+                ))}
+              </div>
             </div>
           </div>
         )}
