@@ -2,6 +2,7 @@
 
 import { useChat } from "@ai-sdk/react";
 import { useEffect, useRef, useState } from "react";
+const ENABLE_ERROR_TEST = false;
 
 type StudyToolResult = {
   subject: string;
@@ -93,22 +94,26 @@ export default function AIChat() {
   }, [messages, isAtBottom]);
 
   async function handleSubmit(
-    event: React.FormEvent<HTMLFormElement>,
-  ) {
-    event.preventDefault();
+  event: React.FormEvent<HTMLFormElement>,
+) {
+  event.preventDefault();
 
-    const value = input.trim();
+  const value = input.trim();
 
-    if (!value || isSubmitted || isStreaming) {
-      return;
-    }
-
-    setInput("");
-
-    await sendMessage({
-      text: value,
-    });
+  if (!value || isSubmitted || isStreaming) {
+    return;
   }
+
+  setInput("");
+
+  if (ENABLE_ERROR_TEST) {
+    throw new Error("TEST_MID_STREAM_ERROR");
+  }
+
+  await sendMessage({
+    text: value,
+  });
+}
 
   async function handleRetry() {
     if (isRetrying) {
@@ -165,14 +170,14 @@ export default function AIChat() {
           <div
             key={message.id}
             className={`flex ${message.role === "user"
-                ? "justify-end"
-                : "justify-start"
+              ? "justify-end"
+              : "justify-start"
               }`}
           >
             <div
               className={`max-w-[80%] rounded-2xl px-4 py-3 ${message.role === "user"
-                  ? "bg-blue-600 text-white"
-                  : "bg-gray-100 text-gray-900"
+                ? "bg-blue-600 text-white"
+                : "bg-gray-100 text-gray-900"
                 }`}
             >
               {message.parts.map((part, index) => {
