@@ -20,6 +20,20 @@ const examplePrompts = [
   "Help me prepare for a frontend interview",
 ];
 
+function ChatSkeleton() {
+  return (
+    <div className="flex justify-start">
+      <div className="w-full max-w-[80%] rounded-2xl bg-gray-100 px-4 py-4">
+        <div className="animate-pulse space-y-3">
+          <div className="h-3 w-3/4 rounded bg-gray-200" />
+          <div className="h-3 w-5/6 rounded bg-gray-200" />
+          <div className="h-3 w-2/3 rounded bg-gray-200" />
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function AIChat() {
   const [input, setInput] = useState("");
 
@@ -255,13 +269,7 @@ export default function AIChat() {
           </div>
         ))}
 
-        {isSubmitted && (
-          <div className="flex justify-start">
-            <div className="rounded-2xl bg-gray-100 px-4 py-3 text-gray-500">
-              Thinking...
-            </div>
-          </div>
-        )}
+        {isSubmitted && <ChatSkeleton />}
 
         {!isAtBottom && messages.length > 0 && (
           <button
