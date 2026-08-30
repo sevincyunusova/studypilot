@@ -86,7 +86,37 @@ Rules:
       .replace(/```/g, "")
       .trim()
 
-    const parsedPlan = JSON.parse(cleanText)
+    let parsedPlan
+
+    try {
+      parsedPlan = JSON.parse(cleanText)
+    } catch {
+      console.error("AI returned invalid JSON:", cleanText)
+
+      return NextResponse.json(
+        {
+          error:
+            "The AI returned an invalid study plan. Please try again.",
+        },
+        { status: 502 }
+      )
+    }
+
+    if (
+      !parsedPlan ||
+      typeof parsedPlan.strategy !== "string" ||
+      !Array.isArray(parsedPlan.tasks)
+    ) {
+      console.error("AI returned an invalid response structure:", parsedPlan)
+
+      return NextResponse.json(
+        {
+          error:
+            "The AI returned an invalid study plan. Please try again.",
+        },
+        { status: 502 }
+      )
+    }
 
     return NextResponse.json({
       plan: parsedPlan.strategy,
