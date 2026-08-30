@@ -76,4 +76,64 @@ export const studyTools = {
             };
         },
     }),
+
+    getGitHubRepository: tool({
+        description:
+            "Fetch real-time information about a public GitHub repository. Use this when the student provides a GitHub repository in the owner/repository format and wants information about it.",
+
+        inputSchema: z.object({
+            owner: z
+                .string()
+                .min(1)
+                .describe("GitHub repository owner or organization."),
+
+            repository: z
+                .string()
+                .min(1)
+                .describe("GitHub repository name."),
+        }),
+
+        execute: async ({ owner, repository }) => {
+            const response = await fetch(
+                `https://api.github.com/repos/${encodeURIComponent(
+                    owner
+                )}/${encodeURIComponent(repository)}`,
+                {
+                    headers: {
+                        Accept: "application/vnd.github+json",
+                        "X-GitHub-Api-Version": "2022-11-28",
+                        "User-Agent": "StudyPilot-Agent",
+                    },
+                    cache: "no-store",
+                }
+            );
+
+            if (!response.ok) {
+                if (response.status === 404) {
+                    throw new Error(
+                        `GitHub repository ${owner}/${repository} was not found.`
+                    );
+                }
+
+                throw new Error(
+                    `GitHub API request failed with status ${response.status}.`
+                );
+            }
+
+            const data = await response.json();
+
+            return {
+                name: data.name,
+                fullName: data.full_name,
+                description: data.description,
+                language: data.language,
+                stars: data.stargazers_count,
+                forks: data.forks_count,
+                openIssues: data.open_issues_count,
+                defaultBranch: data.default_branch,
+                url: data.html_url,
+                updatedAt: data.updated_at,
+            };
+        },
+    }),
 };

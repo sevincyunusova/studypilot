@@ -19,6 +19,19 @@ type StudyPlan = {
   schedule: ScheduleItem[];
 };
 
+type GitHubRepository = {
+  name: string;
+  fullName: string;
+  description: string | null;
+  language: string | null;
+  stars: number;
+  forks: number;
+  openIssues: number;
+  defaultBranch: string;
+  url: string;
+  updatedAt: string;
+};
+
 const examplePrompts = [
   "Create a 7-day study plan for JavaScript",
   "Explain JavaScript promises in simple terms",
@@ -34,6 +47,176 @@ function ChatSkeleton() {
           <div className="h-3 w-5/6 rounded bg-gray-200" />
           <div className="h-3 w-2/3 rounded bg-gray-200" />
         </div>
+      </div>
+    </div>
+  );
+}
+
+function StudyPlanCard({ plan }: { plan: StudyPlan }) {
+  return (
+    <div className="mt-3 rounded-xl border border-slate-200 bg-white p-3 shadow-sm sm:p-4">
+      <div className="border-b border-gray-200 pb-3">
+        <h3 className="text-lg font-semibold text-gray-900">
+          {plan.subject} Study Plan
+        </h3>
+
+        <div className="mt-2 flex flex-wrap gap-2">
+          <span className="rounded-full bg-blue-50 px-3 py-1 text-xs font-medium capitalize text-blue-700">
+            {plan.difficulty}
+          </span>
+
+          <span className="rounded-full bg-gray-100 px-3 py-1 text-xs font-medium text-gray-700">
+            {plan.days} days
+          </span>
+
+          <span className="rounded-full bg-gray-100 px-3 py-1 text-xs font-medium text-gray-700">
+            {plan.hoursPerDay}h/day
+          </span>
+        </div>
+      </div>
+
+      <div className="mt-4">
+        <p className="text-sm font-semibold text-gray-900">
+          Topics
+        </p>
+
+        <div className="mt-2 flex flex-wrap gap-2">
+          {plan.topics.map((topic) => (
+            <span
+              key={topic}
+              className="rounded-lg bg-gray-100 px-3 py-1.5 text-xs text-gray-700"
+            >
+              {topic}
+            </span>
+          ))}
+        </div>
+      </div>
+
+      <div className="mt-4 space-y-3">
+        <p className="text-sm font-semibold text-gray-900">
+          Daily Schedule
+        </p>
+
+        {plan.schedule.map((item) => (
+          <div
+            key={item.day}
+            className="rounded-xl border border-gray-200 bg-gray-50 p-3"
+          >
+            <div className="flex items-center justify-between gap-3">
+              <div>
+                <p className="text-sm font-semibold text-gray-900">
+                  Day {item.day}
+                </p>
+
+                <p className="mt-1 text-sm font-medium text-blue-600">
+                  {item.topic}
+                </p>
+              </div>
+
+              <span className="shrink-0 rounded-full bg-white px-2.5 py-1 text-xs font-medium text-gray-600">
+                {item.hours}h
+              </span>
+            </div>
+
+            <p className="mt-2 text-xs leading-5 text-gray-600">
+              {item.focus}
+            </p>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function GitHubRepositoryCard({
+  repository,
+}: {
+  repository: GitHubRepository;
+}) {
+  return (
+    <div className="mt-3 rounded-xl border border-slate-200 bg-white p-3 shadow-sm sm:p-4">
+      <div className="border-b border-gray-200 pb-3">
+        <div className="flex items-start justify-between gap-3">
+          <div>
+            <h3 className="text-lg font-semibold text-gray-900">
+              {repository.name}
+            </h3>
+
+            <p className="mt-1 text-xs text-gray-500">
+              {repository.fullName}
+            </p>
+          </div>
+
+          <span className="rounded-full bg-green-50 px-3 py-1 text-xs font-medium text-green-700">
+            Live GitHub Data
+          </span>
+        </div>
+
+        {repository.description && (
+          <p className="mt-3 text-sm leading-5 text-gray-600">
+            {repository.description}
+          </p>
+        )}
+      </div>
+
+      <div className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-4">
+        <div className="rounded-lg bg-gray-50 p-3 text-center">
+          <p className="text-lg font-semibold text-gray-900">
+            {repository.stars}
+          </p>
+
+          <p className="text-xs text-gray-500">
+            Stars
+          </p>
+        </div>
+
+        <div className="rounded-lg bg-gray-50 p-3 text-center">
+          <p className="text-lg font-semibold text-gray-900">
+            {repository.forks}
+          </p>
+
+          <p className="text-xs text-gray-500">
+            Forks
+          </p>
+        </div>
+
+        <div className="rounded-lg bg-gray-50 p-3 text-center">
+          <p className="text-lg font-semibold text-gray-900">
+            {repository.openIssues}
+          </p>
+
+          <p className="text-xs text-gray-500">
+            Issues
+          </p>
+        </div>
+
+        <div className="rounded-lg bg-gray-50 p-3 text-center">
+          <p className="text-sm font-semibold text-gray-900">
+            {repository.language || "N/A"}
+          </p>
+
+          <p className="text-xs text-gray-500">
+            Language
+          </p>
+        </div>
+      </div>
+
+      <div className="mt-4 flex items-center justify-between gap-3">
+        <p className="text-xs text-gray-500">
+          Default branch:{" "}
+          <span className="font-medium text-gray-700">
+            {repository.defaultBranch}
+          </span>
+        </p>
+
+        <a
+          href={repository.url}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="rounded-lg bg-gray-900 px-3 py-2 text-xs font-medium text-white transition hover:bg-gray-700"
+        >
+          View Repository
+        </a>
       </div>
     </div>
   );
@@ -235,18 +418,10 @@ export default function AIChat() {
                 }
 
                 if (part.type === "tool-createStudyPlan") {
-                  if (part.state === "input-streaming") {
-                    return (
-                      <div
-                        key={`${message.id}-${index}`}
-                        className="rounded-xl border border-blue-500/30 bg-blue-500/10 p-3 text-sm text-blue-300"
-                      >
-                        Preparing your study plan...
-                      </div>
-                    );
-                  }
-
-                  if (part.state === "input-available") {
+                  if (
+                    part.state === "input-streaming" ||
+                    part.state === "input-available"
+                  ) {
                     return (
                       <div
                         key={`${message.id}-${index}`}
@@ -258,83 +433,11 @@ export default function AIChat() {
                   }
 
                   if (part.state === "output-available") {
-                    const result = part.output as StudyPlan;
-
                     return (
-                      <div
+                      <StudyPlanCard
                         key={`${message.id}-${index}`}
-                        className="mt-3 rounded-xl border border-slate-200 bg-white p-3 shadow-sm sm:p-4"
-                      >
-                        <div className="border-b border-gray-200 pb-3">
-                          <h3 className="text-lg font-semibold text-gray-900">
-                            {result.subject} Study Plan
-                          </h3>
-
-                          <div className="mt-2 flex flex-wrap gap-2">
-                            <span className="rounded-full bg-blue-50 px-3 py-1 text-xs font-medium capitalize text-blue-700">
-                              {result.difficulty}
-                            </span>
-
-                            <span className="rounded-full bg-gray-100 px-3 py-1 text-xs font-medium text-gray-700">
-                              {result.days} days
-                            </span>
-
-                            <span className="rounded-full bg-gray-100 px-3 py-1 text-xs font-medium text-gray-700">
-                              {result.hoursPerDay}h/day
-                            </span>
-                          </div>
-                        </div>
-
-                        <div className="mt-4">
-                          <p className="text-sm font-semibold text-gray-900">
-                            Topics
-                          </p>
-
-                          <div className="mt-2 flex flex-wrap gap-2">
-                            {result.topics.map((topic) => (
-                              <span
-                                key={topic}
-                                className="rounded-lg bg-gray-100 px-3 py-1.5 text-xs text-gray-700"
-                              >
-                                {topic}
-                              </span>
-                            ))}
-                          </div>
-                        </div>
-
-                        <div className="mt-4 space-y-3">
-                          <p className="text-sm font-semibold text-gray-900">
-                            Daily Schedule
-                          </p>
-
-                          {result.schedule.map((item) => (
-                            <div
-                              key={item.day}
-                              className="rounded-xl border border-gray-200 bg-gray-50 p-3"
-                            >
-                              <div className="flex items-center justify-between gap-3">
-                                <div>
-                                  <p className="text-sm font-semibold text-gray-900">
-                                    Day {item.day}
-                                  </p>
-
-                                  <p className="mt-1 text-sm font-medium text-blue-600">
-                                    {item.topic}
-                                  </p>
-                                </div>
-
-                                <span className="shrink-0 rounded-full bg-white px-2.5 py-1 text-xs font-medium text-gray-600">
-                                  {item.hours}h
-                                </span>
-                              </div>
-
-                              <p className="mt-2 text-xs leading-5 text-gray-600">
-                                {item.focus}
-                              </p>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
+                        plan={part.output as StudyPlan}
+                      />
                     );
                   }
 
@@ -345,6 +448,42 @@ export default function AIChat() {
                         className="rounded-xl border border-red-500/30 bg-red-500/10 p-3 text-sm text-red-300"
                       >
                         Failed to create the study plan. Please try again.
+                      </div>
+                    );
+                  }
+                }
+
+                if (part.type === "tool-getGitHubRepository") {
+                  if (
+                    part.state === "input-streaming" ||
+                    part.state === "input-available"
+                  ) {
+                    return (
+                      <div
+                        key={`${message.id}-${index}`}
+                        className="rounded-xl border border-green-500/30 bg-green-500/10 p-3 text-sm text-green-300"
+                      >
+                        Fetching live GitHub repository data...
+                      </div>
+                    );
+                  }
+
+                  if (part.state === "output-available") {
+                    return (
+                      <GitHubRepositoryCard
+                        key={`${message.id}-${index}`}
+                        repository={part.output as GitHubRepository}
+                      />
+                    );
+                  }
+
+                  if (part.state === "output-error") {
+                    return (
+                      <div
+                        key={`${message.id}-${index}`}
+                        className="rounded-xl border border-red-500/30 bg-red-500/10 p-3 text-sm text-red-300"
+                      >
+                        Failed to fetch GitHub repository data.
                       </div>
                     );
                   }
