@@ -37,11 +37,10 @@ function ChatSkeleton() {
 export default function AIChat() {
   const [input, setInput] = useState("");
   const [chatError, setChatError] = useState("");
+  const [isAtBottom, setIsAtBottom] = useState(true);
 
   const bottomRef = useRef<HTMLDivElement>(null);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
-
-  const [isAtBottom, setIsAtBottom] = useState(true);
 
   const {
     messages,
@@ -169,32 +168,32 @@ export default function AIChat() {
   const activeError = chatError || error?.message;
 
   return (
-    <section className="mx-auto flex w-full max-w-3xl flex-col gap-4 p-4">
+    <section className="mx-auto flex w-full max-w-3xl flex-col gap-4 px-2 py-4 sm:px-4">
       <div
         ref={messagesContainerRef}
         onScroll={handleScroll}
-        className="relative max-h-[500px] min-h-[400px] space-y-4 overflow-y-auto rounded-xl border bg-white p-4 shadow-sm"
+        className="relative min-h-[360px] max-h-[60dvh] space-y-4 overflow-y-auto overscroll-contain rounded-xl border bg-white p-3 shadow-sm sm:min-h-[400px] sm:max-h-[500px] sm:p-4"
       >
         {messages.length === 0 && (
-          <div className="flex min-h-[360px] items-center justify-center text-center">
+          <div className="flex min-h-[330px] items-center justify-center text-center sm:min-h-[360px]">
             <div className="w-full max-w-xl">
-              <h2 className="text-2xl font-semibold text-gray-900">
+              <h2 className="text-xl font-semibold text-gray-900 sm:text-2xl">
                 Welcome to StudyPilot AI
               </h2>
 
-              <p className="mt-2 text-gray-500">
+              <p className="mt-2 text-sm leading-6 text-gray-500 sm:text-base">
                 Start your study session by asking a question or choosing an
                 example below.
               </p>
 
-              <div className="mt-6 grid gap-3 text-left">
+              <div className="mt-5 grid gap-3 text-left sm:mt-6">
                 {examplePrompts.map((prompt) => (
                   <button
                     key={prompt}
                     type="button"
                     onClick={() => handleExamplePrompt(prompt)}
                     disabled={isSubmitted || isStreaming}
-                    className="rounded-xl border border-gray-200 bg-white px-4 py-3 text-left text-sm text-gray-700 shadow-sm transition hover:border-blue-300 hover:bg-blue-50 hover:text-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
+                    className="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-left text-sm leading-5 text-gray-700 shadow-sm transition hover:border-blue-300 hover:bg-blue-50 hover:text-blue-700 disabled:cursor-not-allowed disabled:opacity-50 sm:py-3.5"
                   >
                     {prompt}
                   </button>
@@ -207,25 +206,23 @@ export default function AIChat() {
         {messages.map((message) => (
           <div
             key={message.id}
-            className={`flex ${
-              message.role === "user"
+            className={`flex ${message.role === "user"
                 ? "justify-end"
                 : "justify-start"
-            }`}
+              }`}
           >
             <div
-              className={`max-w-[80%] rounded-2xl px-4 py-3 ${
-                message.role === "user"
+              className={`max-w-[90%] rounded-2xl px-3 py-3 text-sm sm:max-w-[80%] sm:px-4 sm:py-3 sm:text-base ${message.role === "user"
                   ? "bg-blue-600 text-white"
                   : "bg-gray-100 text-gray-900"
-              }`}
+                }`}
             >
               {message.parts.map((part, index) => {
                 if (part.type === "text") {
                   return (
                     <p
                       key={`${message.id}-${index}`}
-                      className="whitespace-pre-wrap"
+                      className="whitespace-pre-wrap break-words"
                     >
                       {part.text}
                     </p>
@@ -266,7 +263,7 @@ export default function AIChat() {
                     return (
                       <div
                         key={`${message.id}-${index}`}
-                        className="mt-3 rounded-xl border bg-white p-4 shadow-sm"
+                        className="mt-3 rounded-xl border bg-white p-3 shadow-sm sm:p-4"
                       >
                         <h3 className="font-semibold text-gray-900">
                           {result.subject}
@@ -320,7 +317,7 @@ export default function AIChat() {
           <button
             type="button"
             onClick={jumpToLatest}
-            className="sticky bottom-2 left-1/2 z-10 -translate-x-1/2 rounded-full border bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-md hover:bg-gray-50"
+            className="sticky bottom-2 left-1/2 z-10 -translate-x-1/2 rounded-full border bg-white px-3 py-2 text-xs font-medium text-gray-700 shadow-md hover:bg-gray-50 sm:px-4 sm:text-sm"
           >
             ↓ Jump to latest
           </button>
@@ -338,7 +335,7 @@ export default function AIChat() {
             AI response failed
           </p>
 
-          <p className="mt-1 text-red-600">
+          <p className="mt-1 leading-6 text-red-600">
             {chatError ||
               "The AI response could not be completed. Your failed message can be retried."}
           </p>
@@ -347,9 +344,11 @@ export default function AIChat() {
             type="button"
             onClick={handleRetry}
             disabled={isRetrying}
-            className="mt-3 rounded-lg bg-red-600 px-4 py-2 font-medium text-white transition hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-60"
+            className="mt-3 w-full rounded-lg bg-red-600 px-4 py-2.5 font-medium text-white transition hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
           >
-            {isRetrying ? "Retrying failed response..." : "Retry failed response"}
+            {isRetrying
+              ? "Retrying failed response..."
+              : "Retry failed response"}
           </button>
         </div>
       )}
@@ -364,7 +363,7 @@ export default function AIChat() {
           disabled={isSubmitted || isStreaming}
           placeholder="Ask StudyPilot..."
           aria-label="Ask StudyPilot"
-          className="min-w-0 flex-1 rounded-xl border px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500"
+          className="min-w-0 flex-1 rounded-xl border px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-blue-500 sm:text-base"
         />
 
         {isStreaming || isSubmitted ? (
