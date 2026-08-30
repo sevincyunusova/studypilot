@@ -23,6 +23,17 @@ export async function POST(req: Request) {
 
     const { messages }: { messages: UIMessage[] } = await req.json();
 
+    if (!messages || messages.length === 0) {
+      return Response.json(
+        {
+          error: "At least one message is required.",
+        },
+        {
+          status: 400,
+        },
+      );
+    }
+
     const result = streamText({
       model: studyPilotModel,
       system: studyPilotSystemPrompt,
@@ -31,9 +42,19 @@ export async function POST(req: Request) {
         studyTool,
       },
       toolChoice: "required",
+
+      onError({ error }) {
+        console.error("Chat stream error:", error);
+      },
     });
 
-    return result.toUIMessageStreamResponse();
+    return result.toUIMessageStreamResponse({
+      onError: (error) => {
+        console.error("Chat UI stream error:", error);
+
+        return "The AI response was interrupted. Please try again.";
+      },
+    });
   } catch (error) {
     console.error("Chat API error:", error);
 
