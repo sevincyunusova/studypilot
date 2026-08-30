@@ -6,8 +6,21 @@ import {
 import { studyPilotModel, studyPilotSystemPrompt } from "@/lib/ai";
 import { studyTool } from "./tools";
 
+const ENABLE_RATE_LIMIT_TEST = false;
+
 export async function POST(req: Request) {
   try {
+    if (ENABLE_RATE_LIMIT_TEST) {
+      return Response.json(
+        {
+          error: "Too many requests. Please try again later.",
+        },
+        {
+          status: 429,
+        },
+      );
+    }
+
     const { messages }: { messages: UIMessage[] } = await req.json();
 
     const result = streamText({

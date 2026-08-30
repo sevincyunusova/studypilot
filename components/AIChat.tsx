@@ -2,7 +2,6 @@
 
 import { useChat } from "@ai-sdk/react";
 import { useEffect, useRef, useState } from "react";
-const ENABLE_ERROR_TEST = false;
 
 type StudyToolResult = {
   subject: string;
@@ -94,26 +93,22 @@ export default function AIChat() {
   }, [messages, isAtBottom]);
 
   async function handleSubmit(
-  event: React.FormEvent<HTMLFormElement>,
-) {
-  event.preventDefault();
+    event: React.FormEvent<HTMLFormElement>,
+  ) {
+    event.preventDefault();
 
-  const value = input.trim();
+    const value = input.trim();
 
-  if (!value || isSubmitted || isStreaming) {
-    return;
+    if (!value || isSubmitted || isStreaming) {
+      return;
+    }
+
+    setInput("");
+
+    await sendMessage({
+      text: value,
+    });
   }
-
-  setInput("");
-
-  if (ENABLE_ERROR_TEST) {
-    throw new Error("TEST_MID_STREAM_ERROR");
-  }
-
-  await sendMessage({
-    text: value,
-  });
-}
 
   async function handleRetry() {
     if (isRetrying) {
@@ -130,6 +125,14 @@ export default function AIChat() {
 
     setInput(prompt);
   }
+
+  const errorMessage = error?.message?.toLowerCase() ?? "";
+
+  const isRateLimitError =
+    errorMessage.includes("429") ||
+    errorMessage.includes("too many requests") ||
+    errorMessage.includes("rate limit") ||
+    errorMessage.includes("usage limit");
 
   return (
     <section className="mx-auto flex w-full max-w-3xl flex-col gap-4 p-4">
@@ -170,14 +173,14 @@ export default function AIChat() {
           <div
             key={message.id}
             className={`flex ${message.role === "user"
-              ? "justify-end"
-              : "justify-start"
+                ? "justify-end"
+                : "justify-start"
               }`}
           >
             <div
               className={`max-w-[80%] rounded-2xl px-4 py-3 ${message.role === "user"
-                ? "bg-blue-600 text-white"
-                : "bg-gray-100 text-gray-900"
+                  ? "bg-blue-600 text-white"
+                  : "bg-gray-100 text-gray-900"
                 }`}
             >
               {message.parts.map((part, index) => {
@@ -292,11 +295,15 @@ export default function AIChat() {
       {error && (
         <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-4 text-sm text-red-700">
           <p className="font-medium">
-            We couldn&apos;t finish that response.
+            {isRateLimitError
+              ? "The AI service is temporarily busy."
+              : "We couldn't finish that response."}
           </p>
 
           <p className="mt-1 text-red-600">
-            The connection was interrupted. Your message is still here.
+            {isRateLimitError
+              ? "Too many requests were made. Please wait a moment and try again."
+              : "The connection was interrupted. Your message is still here."}
           </p>
 
           <button
