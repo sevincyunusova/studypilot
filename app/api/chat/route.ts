@@ -1,4 +1,8 @@
-import { convertToModelMessages, streamText, type UIMessage } from "ai";
+import {
+  convertToModelMessages,
+  streamText,
+  type UIMessage,
+} from "ai";
 import { studyPilotModel, studyPilotSystemPrompt } from "@/lib/ai";
 import { studyTool } from "./tools";
 
@@ -14,7 +18,6 @@ export async function POST(req: Request) {
         studyTool,
       },
       toolChoice: "required",
-
     });
 
     return result.toUIMessageStreamResponse();
