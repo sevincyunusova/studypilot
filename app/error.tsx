@@ -1,21 +1,21 @@
-"use client";
+"use client"
 
-import { useEffect } from "react";
+import { useEffect } from "react"
 
 export default function Error({
   error,
   reset,
 }: {
-  error: Error & { digest?: string };
-  reset: () => void;
+  error: Error & { digest?: string }
+  reset: () => void
 }) {
   useEffect(() => {
-    console.error("Application error:", error);
-  }, [error]);
+    console.error(error)
+  }, [error])
 
   return (
     <main className="flex min-h-screen items-center justify-center bg-slate-950 px-6 text-white">
-      <div className="w-full max-w-md rounded-2xl border border-slate-800 bg-slate-900 p-8 text-center shadow-xl">
+      <div className="w-full max-w-md rounded-xl border border-slate-800 bg-slate-900 p-8 text-center shadow-xl">
         <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-red-950 text-2xl">
           !
         </div>
@@ -25,11 +25,10 @@ export default function Error({
         </h1>
 
         <p className="mt-3 text-sm leading-6 text-slate-400">
-          We couldn&apos;t load this page correctly. Please try again.
+          We couldn&apos;t load this page right now. Please try again.
         </p>
 
         <button
-          type="button"
           onClick={() => reset()}
           className="mt-6 rounded-lg bg-blue-600 px-5 py-2.5 font-medium transition hover:bg-blue-500"
         >
@@ -37,5 +36,5 @@ export default function Error({
         </button>
       </div>
     </main>
-  );
+  )
 }

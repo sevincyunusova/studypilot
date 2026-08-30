@@ -23,11 +23,11 @@ const examplePrompts = [
 function ChatSkeleton() {
   return (
     <div className="flex justify-start">
-      <div className="w-full max-w-[80%] rounded-2xl bg-gray-100 px-4 py-4">
+      <div className="w-full max-w-[80%] rounded-2xl border border-slate-800 bg-slate-900 px-4 py-4">
         <div className="animate-pulse space-y-3">
-          <div className="h-3 w-3/4 rounded bg-gray-200" />
-          <div className="h-3 w-5/6 rounded bg-gray-200" />
-          <div className="h-3 w-2/3 rounded bg-gray-200" />
+          <div className="h-3 w-3/4 rounded bg-slate-700" />
+          <div className="h-3 w-5/6 rounded bg-slate-700" />
+          <div className="h-3 w-2/3 rounded bg-slate-700" />
         </div>
       </div>
     </div>
@@ -126,29 +126,25 @@ export default function AIChat() {
     setInput(prompt);
   }
 
-  const errorMessage = error?.message?.toLowerCase() ?? "";
-
-  const isRateLimitError =
-    errorMessage.includes("429") ||
-    errorMessage.includes("too many requests") ||
-    errorMessage.includes("rate limit") ||
-    errorMessage.includes("usage limit");
-
   return (
-    <section className="mx-auto flex w-full max-w-3xl flex-col gap-4 p-4">
+    <section className="mx-auto flex w-full max-w-3xl flex-col gap-4">
       <div
         ref={messagesContainerRef}
         onScroll={handleScroll}
-        className="relative max-h-[500px] min-h-[400px] space-y-4 overflow-y-auto rounded-xl border bg-white p-4 shadow-sm"
+        className="relative min-h-[400px] max-h-[500px] space-y-4 overflow-y-auto rounded-xl border border-slate-800 bg-slate-900 p-4 shadow-sm"
       >
         {messages.length === 0 && (
           <div className="flex min-h-[360px] items-center justify-center text-center">
             <div className="w-full max-w-xl">
-              <h2 className="text-2xl font-semibold text-gray-900">
+              <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-blue-600/20 text-2xl">
+                ✦
+              </div>
+
+              <h2 className="mt-5 text-2xl font-semibold text-white">
                 Welcome to StudyPilot AI
               </h2>
 
-              <p className="mt-2 text-gray-500">
+              <p className="mt-2 text-slate-400">
                 Start your study session by asking a question or choosing an
                 example below.
               </p>
@@ -159,7 +155,7 @@ export default function AIChat() {
                     key={prompt}
                     type="button"
                     onClick={() => handleExamplePrompt(prompt)}
-                    className="rounded-xl border border-gray-200 bg-white px-4 py-3 text-left text-sm text-gray-700 shadow-sm transition hover:border-blue-300 hover:bg-blue-50 hover:text-blue-700"
+                    className="rounded-xl border border-slate-800 bg-slate-950 px-4 py-3 text-left text-sm text-slate-300 transition hover:border-blue-600 hover:bg-blue-950/40 hover:text-blue-400"
                   >
                     {prompt}
                   </button>
@@ -172,23 +168,25 @@ export default function AIChat() {
         {messages.map((message) => (
           <div
             key={message.id}
-            className={`flex ${message.role === "user"
+            className={`flex ${
+              message.role === "user"
                 ? "justify-end"
                 : "justify-start"
-              }`}
+            }`}
           >
             <div
-              className={`max-w-[80%] rounded-2xl px-4 py-3 ${message.role === "user"
+              className={`max-w-[80%] rounded-2xl px-4 py-3 ${
+                message.role === "user"
                   ? "bg-blue-600 text-white"
-                  : "bg-gray-100 text-gray-900"
-                }`}
+                  : "border border-slate-800 bg-slate-800 text-slate-200"
+              }`}
             >
               {message.parts.map((part, index) => {
                 if (part.type === "text") {
                   return (
                     <p
                       key={`${message.id}-${index}`}
-                      className="whitespace-pre-wrap"
+                      className="whitespace-pre-wrap leading-6"
                     >
                       {part.text}
                     </p>
@@ -200,7 +198,7 @@ export default function AIChat() {
                     return (
                       <div
                         key={`${message.id}-${index}`}
-                        className="rounded-xl border border-blue-200 bg-blue-50 p-3 text-sm text-blue-700"
+                        className="rounded-xl border border-blue-800 bg-blue-950/40 p-3 text-sm text-blue-400"
                       >
                         Preparing study information...
                       </div>
@@ -214,7 +212,7 @@ export default function AIChat() {
                     return (
                       <div
                         key={`${message.id}-${index}`}
-                        className="rounded-xl border border-yellow-200 bg-yellow-50 p-3 text-sm text-yellow-700"
+                        className="rounded-xl border border-yellow-800 bg-yellow-950/30 p-3 text-sm text-yellow-400"
                       >
                         Getting study information for{" "}
                         <strong>{toolInput.subject}</strong>...
@@ -229,27 +227,27 @@ export default function AIChat() {
                     return (
                       <div
                         key={`${message.id}-${index}`}
-                        className="mt-3 rounded-xl border bg-white p-4 shadow-sm"
+                        className="mt-3 rounded-xl border border-slate-700 bg-slate-950 p-4 shadow-sm"
                       >
-                        <h3 className="font-semibold text-gray-900">
+                        <h3 className="font-semibold text-white">
                           {result.subject}
                         </h3>
 
-                        <p className="mt-1 text-sm text-gray-600">
+                        <p className="mt-1 text-sm text-slate-400">
                           Difficulty: {result.difficulty}
                         </p>
 
-                        <p className="mt-1 text-sm text-gray-600">
+                        <p className="mt-1 text-sm text-slate-400">
                           Recommended time:{" "}
                           {result.recommendedHours} hours
                         </p>
 
                         <div className="mt-3">
-                          <p className="text-sm font-medium text-gray-900">
+                          <p className="text-sm font-medium text-slate-200">
                             Topics
                           </p>
 
-                          <ul className="mt-1 list-disc pl-5 text-sm text-gray-600">
+                          <ul className="mt-1 list-disc pl-5 text-sm text-slate-400">
                             {result.topics.map((topic) => (
                               <li key={topic}>{topic}</li>
                             ))}
@@ -263,7 +261,7 @@ export default function AIChat() {
                     return (
                       <div
                         key={`${message.id}-${index}`}
-                        className="rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-red-700"
+                        className="rounded-xl border border-red-900 bg-red-950/30 p-3 text-sm text-red-400"
                       >
                         Failed to load study information. Please try again.
                       </div>
@@ -283,7 +281,7 @@ export default function AIChat() {
           <button
             type="button"
             onClick={jumpToLatest}
-            className="sticky bottom-2 left-1/2 z-10 -translate-x-1/2 rounded-full border bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-md hover:bg-gray-50"
+            className="sticky bottom-2 left-1/2 z-10 -translate-x-1/2 rounded-full border border-slate-700 bg-slate-900 px-4 py-2 text-sm font-medium text-slate-300 shadow-md transition hover:bg-slate-800 hover:text-white"
           >
             ↓ Jump to latest
           </button>
@@ -293,24 +291,20 @@ export default function AIChat() {
       </div>
 
       {error && (
-        <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-4 text-sm text-red-700">
-          <p className="font-medium">
-            {isRateLimitError
-              ? "The AI service is temporarily busy."
-              : "We couldn't finish that response."}
+        <div className="rounded-xl border border-red-900 bg-red-950/30 px-4 py-4 text-sm text-red-400">
+          <p className="font-medium text-red-300">
+            We couldn&apos;t finish that response.
           </p>
 
-          <p className="mt-1 text-red-600">
-            {isRateLimitError
-              ? "Too many requests were made. Please wait a moment and try again."
-              : "The connection was interrupted. Your message is still here."}
+          <p className="mt-1 text-red-400/80">
+            The connection was interrupted. Your message is still here.
           </p>
 
           <button
             type="button"
             onClick={handleRetry}
             disabled={isRetrying}
-            className="mt-3 rounded-lg bg-red-600 px-4 py-2 font-medium text-white transition hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-60"
+            className="mt-3 rounded-lg bg-red-600 px-4 py-2 font-medium text-white transition hover:bg-red-500 disabled:cursor-not-allowed disabled:opacity-60"
           >
             {isRetrying ? "Retrying..." : "Try again"}
           </button>
@@ -326,14 +320,14 @@ export default function AIChat() {
           onChange={(event) => setInput(event.target.value)}
           disabled={isSubmitted || isStreaming}
           placeholder="Ask StudyPilot..."
-          className="min-w-0 flex-1 rounded-xl border px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500"
+          className="min-w-0 flex-1 rounded-xl border border-slate-800 bg-slate-900 px-4 py-3 text-white outline-none placeholder:text-slate-500 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 disabled:opacity-60"
         />
 
         {isStreaming || isSubmitted ? (
           <button
             type="button"
             onClick={stop}
-            className="w-full rounded-xl bg-red-600 px-5 py-3 font-medium text-white sm:w-auto"
+            className="w-full rounded-xl bg-red-600 px-5 py-3 font-medium text-white transition hover:bg-red-500 sm:w-auto"
           >
             Stop
           </button>
@@ -341,7 +335,7 @@ export default function AIChat() {
           <button
             type="submit"
             disabled={!input.trim()}
-            className="w-full rounded-xl bg-blue-600 px-5 py-3 font-medium text-white disabled:opacity-50 sm:w-auto"
+            className="w-full rounded-xl bg-blue-600 px-5 py-3 font-medium text-white transition hover:bg-blue-500 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
           >
             Send
           </button>
