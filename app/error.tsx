@@ -3,39 +3,39 @@
 import { useEffect } from "react";
 
 export default function Error({
-    error,
-    reset,
+  error,
+  reset,
 }: {
-    error: Error & { digest?: string };
-    reset: () => void;
+  error: Error & { digest?: string };
+  reset: () => void;
 }) {
-    useEffect(() => {
-        console.error("Application error:", error);
-    }, [error]);
+  useEffect(() => {
+    console.error("Application error:", error);
+  }, [error]);
 
-    return (
-        <main className="flex min-h-[100dvh] items-center justify-center px-6">
-            <div className="w-full max-w-md rounded-2xl border bg-white p-8 text-center shadow-sm">
-                <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-red-100 text-xl text-red-600">
-                    !
-                </div>
+  return (
+    <main className="flex min-h-screen items-center justify-center bg-slate-950 px-6 text-white">
+      <div className="w-full max-w-md rounded-2xl border border-slate-800 bg-slate-900 p-8 text-center shadow-xl">
+        <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-red-950 text-2xl">
+          !
+        </div>
 
-                <h1 className="mt-4 text-2xl font-semibold text-gray-900">
-                    Something went wrong
-                </h1>
+        <h1 className="mt-5 text-2xl font-bold">
+          Something went wrong
+        </h1>
 
-                <p className="mt-2 text-sm leading-6 text-gray-500">
-                    We couldn&apos;t load this page. Please try again.
-                </p>
+        <p className="mt-3 text-sm leading-6 text-slate-400">
+          We couldn&apos;t load this page correctly. Please try again.
+        </p>
 
-                <button
-                    type="button"
-                    onClick={() => reset()}
-                    className="mt-6 rounded-xl bg-blue-600 px-5 py-3 font-medium text-white transition hover:bg-blue-700"
-                >
-                    Try again
-                </button>
-            </div>
-        </main>
-    );
+        <button
+          type="button"
+          onClick={() => reset()}
+          className="mt-6 rounded-lg bg-blue-600 px-5 py-2.5 font-medium transition hover:bg-blue-500"
+        >
+          Try again
+        </button>
+      </div>
+    </main>
+  );
 }
