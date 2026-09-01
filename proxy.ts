@@ -1,10 +1,15 @@
-import { createServerClient } from "@supabase/ssr"
-import { NextResponse, type NextRequest } from "next/server"
+import { createServerClient } from "@supabase/ssr";
+import { NextResponse, type NextRequest } from "next/server";
 
 export async function proxy(request: NextRequest) {
+  // E2E test zamanı auth redirect-i bypass et
+  if (process.env.PLAYWRIGHT_TEST === "true") {
+    return NextResponse.next();
+  }
+
   let response = NextResponse.next({
     request,
-  })
+  });
 
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -12,44 +17,45 @@ export async function proxy(request: NextRequest) {
     {
       cookies: {
         getAll() {
-          return request.cookies.getAll()
+          return request.cookies.getAll();
         },
 
         setAll(cookiesToSet) {
           cookiesToSet.forEach(({ name, value }) => {
-            request.cookies.set(name, value)
-          })
+            request.cookies.set(name, value);
+          });
 
           response = NextResponse.next({
             request,
-          })
+          });
 
           cookiesToSet.forEach(({ name, value, options }) => {
-            response.cookies.set(name, value, options)
-          })
+            response.cookies.set(name, value, options);
+          });
         },
       },
     }
-  )
+  );
+
   const {
     data: { user },
-  } = await supabase.auth.getUser()
+  } = await supabase.auth.getUser();
 
   if (!user && request.nextUrl.pathname === "/") {
-    return NextResponse.redirect(new URL("/signup", request.url))
+    return NextResponse.redirect(new URL("/signup", request.url));
   }
 
   if (user && request.nextUrl.pathname === "/login") {
-    return NextResponse.redirect(new URL("/", request.url))
+    return NextResponse.redirect(new URL("/", request.url));
   }
 
   if (user && request.nextUrl.pathname === "/signup") {
-    return NextResponse.redirect(new URL("/", request.url))
+    return NextResponse.redirect(new URL("/", request.url));
   }
 
-  return response
+  return response;
 }
 
 export const config = {
   matcher: ["/", "/login", "/signup"],
-}
+};

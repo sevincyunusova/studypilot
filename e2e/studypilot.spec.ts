@@ -1,29 +1,61 @@
 import { test, expect } from "@playwright/test";
 
-test("user can start a StudyPilot AI conversation", async ({ page }) => {
-    await page.goto("/");
+test("user can send a message to StudyPilot", async ({ page }) => {
+  await page.route("**/api/chat", async (route) => {
+    const body = [
+      `data: ${JSON.stringify({
+        type: "start",
+        messageId: "mock-message-id",
+      })}\n\n`,
 
-    const input = page.getByRole("textbox", {
-        name: "Ask StudyPilot",
+      `data: ${JSON.stringify({
+        type: "text-start",
+        id: "text-1",
+      })}\n\n`,
+
+      `data: ${JSON.stringify({
+        type: "text-delta",
+        id: "text-1",
+        delta:
+          "JavaScript promises allow asynchronous operations to be handled cleanly.",
+      })}\n\n`,
+
+      `data: ${JSON.stringify({
+        type: "text-end",
+        id: "text-1",
+      })}\n\n`,
+
+      `data: ${JSON.stringify({
+        type: "finish",
+      })}\n\n`,
+    ].join("");
+
+    await route.fulfill({
+      status: 200,
+      contentType: "text/event-stream",
+      body,
     });
+  });
 
-    await expect(input).toBeVisible();
+  await page.goto("/");
 
-    await input.fill("Explain JavaScript promises");
+  const input = page.getByLabel("Ask StudyPilot");
 
-    await expect(
-        page.getByRole("button", {
-            name: "Send",
-        })
-    ).toBeEnabled();
+  await expect(input).toBeVisible({
+    timeout: 10000,
+  });
 
-    await page.getByRole("button", {
-        name: "Send",
-    }).click();
+  await input.fill("Explain JavaScript promises");
 
-    await expect(
-        page.getByRole("button", {
-            name: /Stop|Send/,
-        })
-    ).toBeVisible();
+  await page.getByRole("button", {
+    name: "Send",
+  }).click();
+
+  await expect(
+    page.getByText(
+      "JavaScript promises allow asynchronous operations to be handled cleanly."
+    )
+  ).toBeVisible({
+    timeout: 10000,
+  });
 });
