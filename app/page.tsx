@@ -1,7 +1,18 @@
 "use client"
-import StudyScene from "@/components/StudyScene";
+import dynamic from "next/dynamic"
 import { useEffect, useState } from "react"
 import AIChat from "@/components/AIChat"
+const StudyScene = dynamic(
+  () => import("@/components/StudyScene"),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="mt-8 flex h-[300px] items-center justify-center rounded-xl border border-slate-800 bg-slate-900 text-sm text-slate-400 sm:h-[400px]">
+        Loading 3D Study Desk...
+      </div>
+    ),
+  }
+)
 type Task = {
   id: number
   title: string
