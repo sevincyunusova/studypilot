@@ -84,3 +84,23 @@ Returns study information for a given subject.
 * `input-available` — tool input is ready
 * `output-available` — tool returned study information
 * `output-error` — tool execution failed
+
+## 3D Study Experience
+
+StudyPilot includes an interactive 3D study desk built with React Three Fiber and Three.js.
+
+Users can:
+- Rotate the 3D study scene with mouse or touch.
+- Customize the desk color.
+- Use the experience on mobile devices.
+- See a static fallback when reduced motion is enabled.
+
+### Performance
+
+The 3D scene uses lightweight procedural geometry instead of a large external 3D model. The canvas is lazy-loaded with `next/dynamic`, rendering uses a limited device pixel ratio, and unnecessary shadows were removed to reduce GPU and frame-time cost.
+
+A Lighthouse mobile performance check improved from **46 to 85** after optimizing the 3D rendering.
+
+### Future Improvements
+
+With more time, I would add a more detailed 3D study environment, additional interactive objects, and further performance testing on lower-end mobile devices.
