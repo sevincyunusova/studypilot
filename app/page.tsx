@@ -854,7 +854,10 @@ export default function Home() {
           <StudyScene />
         </section>
 
-        <section className="mt-8">
+        <section className="mt-8" aria-labelledby="ai-chat-heading">
+          <h2 id="ai-chat-heading" className="sr-only">
+            AI Study Assistant
+          </h2>
           <AIChat />
         </section>
         {showForm && (
