@@ -558,10 +558,10 @@ export default function Home() {
 
                       <span
                         className={`text-xs ${task.priority === "High"
-                            ? "text-red-400"
-                            : task.priority === "Medium"
-                              ? "text-yellow-400"
-                              : "text-green-400"
+                          ? "text-red-400"
+                          : task.priority === "Medium"
+                            ? "text-yellow-400"
+                            : "text-green-400"
                           }`}
                       >
                         {task.priority} priority
@@ -673,8 +673,8 @@ export default function Home() {
                     onClick={() => setSelectedSubject(item)}
                     aria-pressed={selectedSubject === item}
                     className={`rounded-lg px-4 py-2 text-sm font-medium transition focus:outline-none focus:ring-2 focus:ring-blue-400 ${selectedSubject === item
-                        ? "bg-blue-600 text-white"
-                        : "bg-slate-800 text-slate-300 hover:bg-slate-700"
+                      ? "bg-blue-600 text-white"
+                      : "bg-slate-800 text-slate-300 hover:bg-slate-700"
                       }`}
                   >
                     {item}
@@ -719,8 +719,8 @@ export default function Home() {
                       }
                       aria-pressed={taskStatus === status}
                       className={`rounded-lg px-4 py-2 text-sm font-medium transition focus:outline-none focus:ring-2 focus:ring-blue-400 ${taskStatus === status
-                          ? "bg-blue-600 text-white"
-                          : "bg-slate-800 text-slate-300 hover:bg-slate-700"
+                        ? "bg-blue-600 text-white"
+                        : "bg-slate-800 text-slate-300 hover:bg-slate-700"
                         }`}
                     >
                       {status}
@@ -811,8 +811,8 @@ export default function Home() {
                   <div className="min-w-[200px] flex-1">
                     <h3
                       className={`font-semibold ${task.completed
-                          ? "text-slate-500 line-through"
-                          : ""
+                        ? "text-slate-500 line-through"
+                        : ""
                         }`}
                     >
                       {task.title}
@@ -853,10 +853,10 @@ export default function Home() {
 
                   <span
                     className={`rounded-full px-3 py-1 text-xs ${task.priority === "High"
-                        ? "bg-red-950 text-red-400"
-                        : task.priority === "Medium"
-                          ? "bg-yellow-950 text-yellow-400"
-                          : "bg-green-950 text-green-400"
+                      ? "bg-red-950 text-red-400"
+                      : task.priority === "Medium"
+                        ? "bg-yellow-950 text-yellow-400"
+                        : "bg-green-950 text-green-400"
                       }`}
                   >
                     {task.priority}
@@ -925,7 +925,9 @@ export default function Home() {
             3D Study Desk
           </h2>
 
-          <StudyScene />
+          <div className="hidden sm:block">
+            <StudyScene />
+          </div>
         </section>
 
         <section
@@ -1314,10 +1316,10 @@ export default function Home() {
 
                                 <span
                                   className={`w-fit rounded-full px-3 py-1 text-xs font-medium ${task.priority === "High"
-                                      ? "bg-red-950 text-red-400"
-                                      : task.priority === "Medium"
-                                        ? "bg-yellow-950 text-yellow-400"
-                                        : "bg-green-950 text-green-400"
+                                    ? "bg-red-950 text-red-400"
+                                    : task.priority === "Medium"
+                                      ? "bg-yellow-950 text-yellow-400"
+                                      : "bg-green-950 text-green-400"
                                     }`}
                                 >
                                   {task.priority}
