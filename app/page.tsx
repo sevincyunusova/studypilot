@@ -1,5 +1,5 @@
 "use client"
-
+import StudyScene from "@/components/StudyScene";
 import { useEffect, useState } from "react"
 import AIChat from "@/components/AIChat"
 type Task = {
@@ -363,7 +363,7 @@ export default function Home() {
       className: "text-slate-400",
     }
   }
-  
+
   return (
     <main className="min-h-screen bg-slate-950 text-white">
       <div className="mx-auto max-w-7xl px-6 py-10">
@@ -839,6 +839,10 @@ export default function Home() {
           </div>
 
         </section>
+        <section className="mt-8">
+          <StudyScene />
+        </section>
+
         <section className="mt-8">
           <AIChat />
         </section>
