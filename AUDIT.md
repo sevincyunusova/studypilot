@@ -49,3 +49,13 @@ Final scores:
 
 - Performance: 97
 - Accessibility: 95
+
+## Lighthouse Screenshots
+
+### Before
+
+![Lighthouse Before](./docs/beforescreenshot.png)
+
+### After
+
+![Lighthouse After](./docs/afterscreenshot.png)
