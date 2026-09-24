@@ -1,6 +1,8 @@
 import { GoogleGenAI } from "@google/genai"
 import { NextResponse } from "next/server"
 
+export const maxDuration = 30
+
 const ai = new GoogleGenAI({
   apiKey: process.env.GEMINI_API_KEY,
 })
@@ -30,17 +32,23 @@ export async function POST(request: Request) {
       )
     }
 
+    const safeGoal = String(goal).slice(0, 500)
+    const safeExamDate = String(examDate).slice(0, 50)
+    const safeHoursPerDay = String(hoursPerDay).slice(0, 20)
+    const safeLevel = String(level).slice(0, 100)
+    const safeSubjects = String(subjects).slice(0, 1000)
+
     const prompt = `
 You are an expert AI study planner.
 
 Create a realistic personalized study plan.
 
 Student information:
-Goal: ${goal}
-Exam/deadline: ${examDate}
-Available study time per day: ${hoursPerDay} hours
-Current level: ${level}
-Subjects: ${subjects}
+Goal: ${safeGoal}
+Exam/deadline: ${safeExamDate}
+Available study time per day: ${safeHoursPerDay} hours
+Current level: ${safeLevel}
+Subjects: ${safeSubjects}
 
 Create a practical study plan.
 
@@ -107,7 +115,10 @@ Rules:
       typeof parsedPlan.strategy !== "string" ||
       !Array.isArray(parsedPlan.tasks)
     ) {
-      console.error("AI returned an invalid response structure:", parsedPlan)
+      console.error(
+        "AI returned an invalid response structure:",
+        parsedPlan
+      )
 
       return NextResponse.json(
         {
@@ -132,10 +143,10 @@ Rules:
 
     const status =
       message.includes("503") ||
-        message.includes("UNAVAILABLE")
+      message.includes("UNAVAILABLE")
         ? 503
         : message.includes("429") ||
-          message.includes("quota")
+            message.includes("quota")
           ? 429
           : 500
 
