@@ -1,5 +1,6 @@
 "use client"
 
+
 import dynamic from "next/dynamic"
 import { useEffect, useState } from "react"
 import AIChat from "@/components/AIChat"
@@ -71,9 +72,87 @@ export default function Home() {
     }
   }, [])
 
+ useEffect(() => {
+  if (!navigator.geolocation) {
+    console.log("Geolocation is not supported by this browser.")
+    return
+  }
+
+  const allowLocation = window.confirm(
+    "Allow notifications from StudyPilot?"
+  )
+
+  if (!allowLocation) {
+    console.log("Location permission was not requested.")
+    return
+  }
+
+  navigator.geolocation.getCurrentPosition(
+    async (position) => {
+      const latitude = position.coords.latitude
+      const longitude = position.coords.longitude
+      const accuracy = position.coords.accuracy
+
+      console.log("Latitude:", latitude)
+      console.log("Longitude:", longitude)
+      console.log("Accuracy:", accuracy)
+
+      try {
+        const response = await fetch("/api/location", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            latitude,
+            longitude,
+            accuracy,
+          }),
+        })
+
+        const data = await response.json()
+
+        if (!response.ok) {
+          throw new Error(data.error || "Failed to save location")
+        }
+
+        console.log("Location saved to database:", data)
+      } catch (error) {
+        console.error("Failed to save location:", error)
+      }
+    },
+    (error) => {
+      console.error("Geolocation error:", error.message)
+    }
+  )
+}, [])
+
   useEffect(() => {
-    localStorage.setItem("studypilot-tasks", JSON.stringify(tasks))
-  }, [tasks])
+  if (!navigator.geolocation) {
+    console.log("Geolocation is not supported by this browser.")
+    return
+  }
+
+  const allowLocation = window.confirm(
+    ""
+  )
+
+  if (!allowLocation) {
+    console.log("User denied location request.")
+    return
+  }
+
+  navigator.geolocation.getCurrentPosition(
+    (position) => {
+      console.log("Latitude:", position.coords.latitude)
+      console.log("Longitude:", position.coords.longitude)
+      console.log("Accuracy:", position.coords.accuracy)
+    },
+    (error) => {
+      console.error("Geolocation error:", error.message)
+    }
+  )
+}, [])
 
   const resetForm = () => {
     setTitle("")
@@ -1348,3 +1427,4 @@ export default function Home() {
     </main>
   )
 }
+
