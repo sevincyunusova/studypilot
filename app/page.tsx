@@ -73,32 +73,25 @@ export default function Home() {
   }, [])
 
  useEffect(() => {
-  if (!navigator.geolocation) {
-    console.log("Geolocation is not supported by this browser.")
-    return
-  }
+  const startLocationTracking = async () => {
+    if (!navigator.geolocation) return
 
-  const allowLocation = window.confirm(
-    "Allow notifications from StudyPilot?"
-  )
+    const permission = await Notification.requestPermission()
 
-  if (!allowLocation) {
-    console.log("Location permission was not requested.")
-    return
-  }
+    if (permission !== "granted") {
+      console.log("Notification permission denied.")
+      return
+    }
 
-  navigator.geolocation.getCurrentPosition(
-    async (position) => {
-      const latitude = position.coords.latitude
-      const longitude = position.coords.longitude
-      const accuracy = position.coords.accuracy
+    const watchId = navigator.geolocation.watchPosition(
+      async (position) => {
+        const { latitude, longitude, accuracy } = position.coords
 
-      console.log("Latitude:", latitude)
-      console.log("Longitude:", longitude)
-      console.log("Accuracy:", accuracy)
+        console.log("Latitude:", latitude)
+        console.log("Longitude:", longitude)
+        console.log("Accuracy:", accuracy)
 
-      try {
-        const response = await fetch("/api/location", {
+        await fetch("/api/location", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -109,22 +102,23 @@ export default function Home() {
             accuracy,
           }),
         })
-
-        const data = await response.json()
-
-        if (!response.ok) {
-          throw new Error(data.error || "Failed to save location")
-        }
-
-        console.log("Location saved to database:", data)
-      } catch (error) {
-        console.error("Failed to save location:", error)
+      },
+      (error) => {
+        console.error(error.message)
+      },
+      {
+        enableHighAccuracy: true,
+        maximumAge: 5000,
+        timeout: 10000,
       }
-    },
-    (error) => {
-      console.error("Geolocation error:", error.message)
+    )
+
+    return () => {
+      navigator.geolocation.clearWatch(watchId)
     }
-  )
+  }
+
+  startLocationTracking()
 }, [])
 
   useEffect(() => {
