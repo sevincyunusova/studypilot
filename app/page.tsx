@@ -465,7 +465,7 @@ export default function Home() {
       id="main-content"
       className="min-h-screen bg-slate-950 text-white"
     >
-      <nav
+            <nav
         className="sticky top-0 z-50 border-b border-slate-800/80 bg-slate-950/90 backdrop-blur"
         aria-label="Main navigation"
       >
@@ -495,22 +495,23 @@ export default function Home() {
             </div>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="relative flex items-center gap-3">
             <div className="hidden text-right sm:block">
               <p className="text-sm font-medium text-white">Student</p>
               <p className="text-xs text-slate-500">Study smarter</p>
             </div>
 
-            <div
-              className="flex h-9 w-9 items-center justify-center rounded-full bg-blue-600 text-sm font-bold text-white"
-              aria-hidden="true"
+            <a
+              href="/profile"
+              className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-600 text-sm font-bold text-white transition hover:bg-blue-500 hover:ring-4 hover:ring-blue-500/20"
+              aria-label="Open profile"
+              title="Profile"
             >
               S
-            </div>
+            </a>
           </div>
         </div>
       </nav>
-
       <div className="mx-auto max-w-7xl px-6 py-10">
 
         <header
