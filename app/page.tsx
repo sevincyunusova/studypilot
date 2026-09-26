@@ -1,6 +1,5 @@
 "use client"
 
-
 import dynamic from "next/dynamic"
 import { useEffect, useState } from "react"
 import AIChat from "@/components/AIChat"
@@ -54,6 +53,7 @@ export default function Home() {
 
   const [searchQuery, setSearchQuery] = useState("")
   const [taskStatus, setTaskStatus] = useState("All")
+  const [showProfileMenu, setShowProfileMenu] = useState(false)
 
   const [aiTasks, setAiTasks] = useState<
     {
@@ -127,9 +127,7 @@ export default function Home() {
       return
     }
 
-    const allowLocation = window.confirm(
-      ""
-    )
+    const allowLocation = window.confirm("")
 
     if (!allowLocation) {
       console.log("User denied location request.")
@@ -189,12 +187,12 @@ export default function Home() {
       tasks.map((task) =>
         task.id === editingTask.id
           ? {
-            ...task,
-            title,
-            subject,
-            deadline,
-            priority,
-          }
+              ...task,
+              title,
+              subject,
+              deadline,
+              priority,
+            }
           : task
       )
     )
@@ -331,9 +329,9 @@ export default function Home() {
             !currentTasks.some(
               (existingTask) =>
                 existingTask.title.toLowerCase() ===
-                aiTask.title.toLowerCase() &&
+                  aiTask.title.toLowerCase() &&
                 existingTask.subject.toLowerCase() ===
-                aiTask.subject.toLowerCase() &&
+                  aiTask.subject.toLowerCase() &&
                 existingTask.deadline === aiTask.deadline
             )
         )
@@ -459,13 +457,12 @@ export default function Home() {
     }
   }
 
-
-    return (
+  return (
     <main
       id="main-content"
       className="min-h-screen bg-slate-950 text-white"
     >
-            <nav
+      <nav
         className="sticky top-0 z-50 border-b border-slate-800/80 bg-slate-950/90 backdrop-blur"
         aria-label="Main navigation"
       >
@@ -497,23 +494,109 @@ export default function Home() {
 
           <div className="relative flex items-center gap-3">
             <div className="hidden text-right sm:block">
-              <p className="text-sm font-medium text-white">Student</p>
-              <p className="text-xs text-slate-500">Study smarter</p>
+              <p className="text-sm font-medium text-white">
+                Student
+              </p>
+              <p className="text-xs text-slate-500">
+                Study smarter
+              </p>
             </div>
 
-            <a
-              href="/profile"
+            <button
+              type="button"
+              onClick={() =>
+                setShowProfileMenu((current) => !current)
+              }
               className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-600 text-sm font-bold text-white transition hover:bg-blue-500 hover:ring-4 hover:ring-blue-500/20"
-              aria-label="Open profile"
-              title="Profile"
+              aria-label="Open profile menu"
+              aria-expanded={showProfileMenu}
             >
               S
-            </a>
+            </button>
+
+            {showProfileMenu && (
+              <div className="absolute right-0 top-14 z-50 w-64 overflow-hidden rounded-2xl border border-slate-800 bg-slate-900 shadow-2xl">
+                <div className="border-b border-slate-800 px-4 py-4">
+                  <p className="text-sm font-semibold text-white">
+                    Student
+                  </p>
+
+                  <p className="mt-1 text-xs text-slate-500">
+                    Study smarter
+                  </p>
+                </div>
+
+                <div className="p-2">
+                  <a
+                    href="/profile"
+                    onClick={() =>
+                      setShowProfileMenu(false)
+                    }
+                    className="flex items-center gap-3 rounded-xl px-3 py-3 text-sm text-slate-300 transition hover:bg-slate-800 hover:text-white"
+                  >
+                    <span className="text-base">👤</span>
+
+                    <span>
+                      <span className="block font-medium">
+                        View Profile
+                      </span>
+
+                      <span className="block text-xs text-slate-500">
+                        View your profile
+                      </span>
+                    </span>
+                  </a>
+
+                  <a
+                    href="/profile"
+                    onClick={() =>
+                      setShowProfileMenu(false)
+                    }
+                    className="flex items-center gap-3 rounded-xl px-3 py-3 text-sm text-slate-300 transition hover:bg-slate-800 hover:text-white"
+                  >
+                    <span className="text-base">⚙</span>
+
+                    <span>
+                      <span className="block font-medium">
+                        Settings
+                      </span>
+
+                      <span className="block text-xs text-slate-500">
+                        Manage your account
+                      </span>
+                    </span>
+                  </a>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowProfileMenu(false)
+                      alert(
+                        "Sign out will be connected to Supabase Auth."
+                      )
+                    }}
+                    className="flex w-full items-center gap-3 rounded-xl px-3 py-3 text-left text-sm text-red-400 transition hover:bg-red-500/10 hover:text-red-300"
+                  >
+                    <span className="text-base">↪</span>
+
+                    <span>
+                      <span className="block font-medium">
+                        Sign Out
+                      </span>
+
+                      <span className="block text-xs text-red-400/60">
+                        Sign out of your account
+                      </span>
+                    </span>
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </nav>
-      <div className="mx-auto max-w-7xl px-6 py-10">
 
+      <div className="mx-auto max-w-7xl px-6 py-10">
         <header
           className="mb-10 flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between"
           aria-labelledby="page-title"
