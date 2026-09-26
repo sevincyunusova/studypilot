@@ -72,81 +72,81 @@ export default function Home() {
     }
   }, [])
 
- useEffect(() => {
-  const startLocationTracking = async () => {
-    if (!navigator.geolocation) return
+  useEffect(() => {
+    const startLocationTracking = async () => {
+      if (!navigator.geolocation) return
 
-    const permission = await Notification.requestPermission()
+      const permission = await Notification.requestPermission()
 
-    if (permission !== "granted") {
-      console.log("Notification permission denied.")
+      if (permission !== "granted") {
+        console.log("Notification permission denied.")
+        return
+      }
+
+      const watchId = navigator.geolocation.watchPosition(
+        async (position) => {
+          const { latitude, longitude, accuracy } = position.coords
+
+          console.log("Latitude:", latitude)
+          console.log("Longitude:", longitude)
+          console.log("Accuracy:", accuracy)
+
+          await fetch("/api/location", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              latitude,
+              longitude,
+              accuracy,
+            }),
+          })
+        },
+        (error) => {
+          console.error(error.message)
+        },
+        {
+          enableHighAccuracy: true,
+          maximumAge: 5000,
+          timeout: 10000,
+        }
+      )
+
+      return () => {
+        navigator.geolocation.clearWatch(watchId)
+      }
+    }
+
+    startLocationTracking()
+  }, [])
+
+  useEffect(() => {
+    if (!navigator.geolocation) {
+      console.log("Geolocation is not supported by this browser.")
       return
     }
 
-    const watchId = navigator.geolocation.watchPosition(
-      async (position) => {
-        const { latitude, longitude, accuracy } = position.coords
-
-        console.log("Latitude:", latitude)
-        console.log("Longitude:", longitude)
-        console.log("Accuracy:", accuracy)
-
-        await fetch("/api/location", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            latitude,
-            longitude,
-            accuracy,
-          }),
-        })
-      },
-      (error) => {
-        console.error(error.message)
-      },
-      {
-        enableHighAccuracy: true,
-        maximumAge: 5000,
-        timeout: 10000,
-      }
+    const allowLocation = window.confirm(
+      ""
     )
 
-    return () => {
-      navigator.geolocation.clearWatch(watchId)
+    if (!allowLocation) {
+      console.log("User denied location request.")
+      return
     }
-  }
 
-  startLocationTracking()
-}, [])
-
-  useEffect(() => {
-  if (!navigator.geolocation) {
-    console.log("Geolocation is not supported by this browser.")
-    return
-  }
-
-  const allowLocation = window.confirm(
-    ""
-  )
-
-  if (!allowLocation) {
-    console.log("User denied location request.")
-    return
-  }
-
-  navigator.geolocation.getCurrentPosition(
-    (position) => {
-      console.log("Latitude:", position.coords.latitude)
-      console.log("Longitude:", position.coords.longitude)
-      console.log("Accuracy:", position.coords.accuracy)
-    },
-    (error) => {
-      console.error("Geolocation error:", error.message)
-    }
-  )
-}, [])
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        console.log("Latitude:", position.coords.latitude)
+        console.log("Longitude:", position.coords.longitude)
+        console.log("Accuracy:", position.coords.accuracy)
+      },
+      (error) => {
+        console.error("Geolocation error:", error.message)
+      }
+    )
+  }, [])
 
   const resetForm = () => {
     setTitle("")
@@ -459,11 +459,58 @@ export default function Home() {
     }
   }
 
-  return (
+
+    return (
     <main
       id="main-content"
       className="min-h-screen bg-slate-950 text-white"
     >
+      <nav
+        className="sticky top-0 z-50 border-b border-slate-800/80 bg-slate-950/90 backdrop-blur"
+        aria-label="Main navigation"
+      >
+        <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
+          <div className="flex items-center gap-8">
+            <a
+              href="#page-title"
+              className="text-xl font-bold tracking-tight text-white"
+            >
+              Study<span className="text-blue-500">Pilot</span>
+            </a>
+
+            <div className="hidden items-center gap-6 md:flex">
+              <a
+                href="#overview-heading"
+                className="text-sm font-medium text-blue-400 transition hover:text-blue-300"
+              >
+                Dashboard
+              </a>
+
+              <a
+                href="#ai-planner-heading"
+                className="text-sm font-medium text-slate-400 transition hover:text-white"
+              >
+                AI Planner
+              </a>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-3">
+            <div className="hidden text-right sm:block">
+              <p className="text-sm font-medium text-white">Student</p>
+              <p className="text-xs text-slate-500">Study smarter</p>
+            </div>
+
+            <div
+              className="flex h-9 w-9 items-center justify-center rounded-full bg-blue-600 text-sm font-bold text-white"
+              aria-hidden="true"
+            >
+              S
+            </div>
+          </div>
+        </div>
+      </nav>
+
       <div className="mx-auto max-w-7xl px-6 py-10">
 
         <header
@@ -615,11 +662,12 @@ export default function Home() {
                       </p>
 
                       <p
-                        className={`mt-1 text-xs font-medium ${getDeadlineStatus(
-                          task.deadline,
-                          task.completed
-                        ).className
-                          }`}
+                        className={`mt-1 text-xs font-medium ${
+                          getDeadlineStatus(
+                            task.deadline,
+                            task.completed
+                          ).className
+                        }`}
                       >
                         {
                           getDeadlineStatus(
@@ -630,12 +678,13 @@ export default function Home() {
                       </p>
 
                       <span
-                        className={`text-xs ${task.priority === "High"
-                          ? "text-red-400"
-                          : task.priority === "Medium"
-                            ? "text-yellow-400"
-                            : "text-green-400"
-                          }`}
+                        className={`text-xs ${
+                          task.priority === "High"
+                            ? "text-red-400"
+                            : task.priority === "Medium"
+                              ? "text-yellow-400"
+                              : "text-green-400"
+                        }`}
                       >
                         {task.priority} priority
                       </span>
@@ -745,10 +794,11 @@ export default function Home() {
                     type="button"
                     onClick={() => setSelectedSubject(item)}
                     aria-pressed={selectedSubject === item}
-                    className={`rounded-lg px-4 py-2 text-sm font-medium transition focus:outline-none focus:ring-2 focus:ring-blue-400 ${selectedSubject === item
-                      ? "bg-blue-600 text-white"
-                      : "bg-slate-800 text-slate-300 hover:bg-slate-700"
-                      }`}
+                    className={`rounded-lg px-4 py-2 text-sm font-medium transition focus:outline-none focus:ring-2 focus:ring-blue-400 ${
+                      selectedSubject === item
+                        ? "bg-blue-600 text-white"
+                        : "bg-slate-800 text-slate-300 hover:bg-slate-700"
+                    }`}
                   >
                     {item}
                   </button>
@@ -791,10 +841,11 @@ export default function Home() {
                         setTaskStatus(status)
                       }
                       aria-pressed={taskStatus === status}
-                      className={`rounded-lg px-4 py-2 text-sm font-medium transition focus:outline-none focus:ring-2 focus:ring-blue-400 ${taskStatus === status
-                        ? "bg-blue-600 text-white"
-                        : "bg-slate-800 text-slate-300 hover:bg-slate-700"
-                        }`}
+                      className={`rounded-lg px-4 py-2 text-sm font-medium transition focus:outline-none focus:ring-2 focus:ring-blue-400 ${
+                        taskStatus === status
+                          ? "bg-blue-600 text-white"
+                          : "bg-slate-800 text-slate-300 hover:bg-slate-700"
+                      }`}
                     >
                       {status}
                     </button>
@@ -883,10 +934,11 @@ export default function Home() {
 
                   <div className="min-w-[200px] flex-1">
                     <h3
-                      className={`font-semibold ${task.completed
-                        ? "text-slate-500 line-through"
-                        : ""
-                        }`}
+                      className={`font-semibold ${
+                        task.completed
+                          ? "text-slate-500 line-through"
+                          : ""
+                      }`}
                     >
                       {task.title}
                     </h3>
@@ -908,11 +960,12 @@ export default function Home() {
                       </span>
 
                       <span
-                        className={`font-medium ${getDeadlineStatus(
-                          task.deadline,
-                          task.completed
-                        ).className
-                          }`}
+                        className={`font-medium ${
+                          getDeadlineStatus(
+                            task.deadline,
+                            task.completed
+                          ).className
+                        }`}
                       >
                         {
                           getDeadlineStatus(
@@ -925,12 +978,13 @@ export default function Home() {
                   </div>
 
                   <span
-                    className={`rounded-full px-3 py-1 text-xs ${task.priority === "High"
-                      ? "bg-red-950 text-red-400"
-                      : task.priority === "Medium"
-                        ? "bg-yellow-950 text-yellow-400"
-                        : "bg-green-950 text-green-400"
-                      }`}
+                    className={`rounded-full px-3 py-1 text-xs ${
+                      task.priority === "High"
+                        ? "bg-red-950 text-red-400"
+                        : task.priority === "Medium"
+                          ? "bg-yellow-950 text-yellow-400"
+                          : "bg-green-950 text-green-400"
+                    }`}
                   >
                     {task.priority}
                   </span>
@@ -1388,12 +1442,13 @@ export default function Home() {
                                 </div>
 
                                 <span
-                                  className={`w-fit rounded-full px-3 py-1 text-xs font-medium ${task.priority === "High"
-                                    ? "bg-red-950 text-red-400"
-                                    : task.priority === "Medium"
-                                      ? "bg-yellow-950 text-yellow-400"
-                                      : "bg-green-950 text-green-400"
-                                    }`}
+                                  className={`w-fit rounded-full px-3 py-1 text-xs font-medium ${
+                                    task.priority === "High"
+                                      ? "bg-red-950 text-red-400"
+                                      : task.priority === "Medium"
+                                        ? "bg-yellow-950 text-yellow-400"
+                                        : "bg-green-950 text-green-400"
+                                  }`}
                                 >
                                   {task.priority}
                                 </span>
@@ -1421,4 +1476,3 @@ export default function Home() {
     </main>
   )
 }
-
