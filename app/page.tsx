@@ -497,6 +497,7 @@ export default function Home() {
               <p className="text-sm font-medium text-white">
                 Student
               </p>
+
               <p className="text-xs text-slate-500">
                 Study smarter
               </p>
@@ -505,36 +506,57 @@ export default function Home() {
             <button
               type="button"
               onClick={() =>
-                setShowProfileMenu((current) => !current)
+                setShowProfileMenu((previous) => !previous)
               }
               className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-600 text-sm font-bold text-white transition hover:bg-blue-500 hover:ring-4 hover:ring-blue-500/20"
               aria-label="Open profile menu"
               aria-expanded={showProfileMenu}
+              title="Profile"
             >
               S
             </button>
 
             {showProfileMenu && (
-              <div className="absolute right-0 top-14 z-50 w-64 overflow-hidden rounded-2xl border border-slate-800 bg-slate-900 shadow-2xl">
-                <div className="border-b border-slate-800 px-4 py-4">
-                  <p className="text-sm font-semibold text-white">
-                    Student
-                  </p>
+              <div className="absolute right-0 top-14 z-[100] w-72 overflow-hidden rounded-2xl border border-slate-800 bg-slate-900 shadow-2xl">
+                <div className="border-b border-slate-800 p-4">
+                  <div className="flex items-center gap-3">
+                    <div className="flex h-12 w-12 items-center justify-center rounded-full bg-blue-600 text-lg font-bold text-white">
+                      S
+                    </div>
 
-                  <p className="mt-1 text-xs text-slate-500">
-                    Study smarter
-                  </p>
+                    <div className="min-w-0">
+                      <p className="truncate font-semibold text-white">
+                        Student
+                      </p>
+
+                      <p className="truncate text-sm text-slate-500">
+                        Study smarter
+                      </p>
+                    </div>
+                  </div>
                 </div>
 
                 <div className="p-2">
                   <a
                     href="/profile"
-                    onClick={() =>
-                      setShowProfileMenu(false)
-                    }
+                    onClick={() => setShowProfileMenu(false)}
                     className="flex items-center gap-3 rounded-xl px-3 py-3 text-sm text-slate-300 transition hover:bg-slate-800 hover:text-white"
                   >
-                    <span className="text-base">👤</span>
+                    <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-blue-500/10 text-blue-400">
+                      <svg
+                        width="18"
+                        height="18"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      >
+                        <path d="M20 21a8 8 0 0 0-16 0" />
+                        <circle cx="12" cy="7" r="4" />
+                      </svg>
+                    </span>
 
                     <span>
                       <span className="block font-medium">
@@ -542,19 +564,31 @@ export default function Home() {
                       </span>
 
                       <span className="block text-xs text-slate-500">
-                        View your profile
+                        Profile & settings
                       </span>
                     </span>
                   </a>
 
                   <a
-                    href="/profile"
-                    onClick={() =>
-                      setShowProfileMenu(false)
-                    }
+                    href="/profile#app-settings"
+                    onClick={() => setShowProfileMenu(false)}
                     className="flex items-center gap-3 rounded-xl px-3 py-3 text-sm text-slate-300 transition hover:bg-slate-800 hover:text-white"
                   >
-                    <span className="text-base">⚙</span>
+                    <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-blue-500/10 text-blue-400">
+                      <svg
+                        width="18"
+                        height="18"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      >
+                        <path d="M12 15.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Z" />
+                        <path d="M19.4 15a1.7 1.7 0 0 0 .34 1.88l.06.06-1.4 1.4-.06-.06a1.7 1.7 0 0 0-1.88-.34 1.7 1.7 0 0 0-1.03 1.56V20h-2v-.5a1.7 1.7 0 0 0-1.03-1.56 1.7 1.7 0 0 0-1.88.34l-.06.06-1.4-1.4.06-.06A1.7 1.7 0 0 0 8.6 15a1.7 1.7 0 0 0-1.56-1.03H6v-2h1.04A1.7 1.7 0 0 0 8.6 10a1.7 1.7 0 0 0-.34-1.88L8.2 8.06l1.4-1.4.06.06a1.7 1.7 0 0 0 1.88-.34A1.7 1.7 0 0 0 12.57 5.5V5h2v.5A1.7 1.7 0 0 0 15.6 7.06a1.7 1.7 0 0 0 1.88-.34l.06-.06 1.4 1.4-.06.06A1.7 1.7 0 0 0 18.6 10a1.7 1.7 0 0 0 1.56 1.03H21v2h-.84A1.7 1.7 0 0 0 19.4 15Z" />
+                      </svg>
+                    </span>
 
                     <span>
                       <span className="block font-medium">
@@ -562,33 +596,10 @@ export default function Home() {
                       </span>
 
                       <span className="block text-xs text-slate-500">
-                        Manage your account
+                        App preferences
                       </span>
                     </span>
                   </a>
-
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setShowProfileMenu(false)
-                      alert(
-                        "Sign out will be connected to Supabase Auth."
-                      )
-                    }}
-                    className="flex w-full items-center gap-3 rounded-xl px-3 py-3 text-left text-sm text-red-400 transition hover:bg-red-500/10 hover:text-red-300"
-                  >
-                    <span className="text-base">↪</span>
-
-                    <span>
-                      <span className="block font-medium">
-                        Sign Out
-                      </span>
-
-                      <span className="block text-xs text-red-400/60">
-                        Sign out of your account
-                      </span>
-                    </span>
-                  </button>
                 </div>
               </div>
             )}
@@ -650,9 +661,11 @@ export default function Home() {
             <p className="text-sm text-slate-400">
               Total Tasks
             </p>
+
             <p className="mt-2 text-3xl font-bold">
               {tasks.length}
             </p>
+
             <p className="mt-2 text-xs text-slate-500">
               All your study tasks
             </p>
@@ -662,9 +675,11 @@ export default function Home() {
             <p className="text-sm text-slate-400">
               Completed
             </p>
+
             <p className="mt-2 text-3xl font-bold">
               {completedTasks}
             </p>
+
             <p className="mt-2 text-xs text-slate-500">
               {progress}% completion rate
             </p>
@@ -674,9 +689,11 @@ export default function Home() {
             <p className="text-sm text-slate-400">
               Upcoming
             </p>
+
             <p className="mt-2 text-3xl font-bold">
               {upcomingTasks.length}
             </p>
+
             <p className="mt-2 text-xs text-slate-500">
               Tasks with upcoming deadlines
             </p>
@@ -686,9 +703,11 @@ export default function Home() {
             <p className="text-sm text-slate-400">
               High Priority
             </p>
+
             <p className="mt-2 text-3xl font-bold">
               {highPriorityTasks}
             </p>
+
             <p className="mt-2 text-xs text-slate-500">
               Tasks requiring attention
             </p>
@@ -705,6 +724,7 @@ export default function Home() {
                 <h2 className="text-xl font-semibold">
                   Upcoming Deadlines
                 </h2>
+
                 <p className="mt-1 text-sm text-slate-400">
                   Keep track of your next study deadlines.
                 </p>
@@ -735,6 +755,7 @@ export default function Home() {
                       <h3 className="font-medium">
                         {task.title}
                       </h3>
+
                       <p className="mt-1 text-sm text-slate-400">
                         {task.subject}
                       </p>
@@ -821,6 +842,7 @@ export default function Home() {
                 <p className="text-sm text-slate-400">
                   Completed
                 </p>
+
                 <p className="mt-1 text-2xl font-bold">
                   {completedTasks}
                 </p>
@@ -830,6 +852,7 @@ export default function Home() {
                 <p className="text-sm text-slate-400">
                   Remaining
                 </p>
+
                 <p className="mt-1 text-2xl font-bold">
                   {tasks.length - completedTasks}
                 </p>
@@ -1519,6 +1542,7 @@ export default function Home() {
 
                                   <div className="mt-1 flex flex-wrap gap-x-3 gap-y-1 text-xs text-slate-400">
                                     <span>{task.subject}</span>
+
                                     <span>
                                       Deadline: {task.deadline}
                                     </span>
