@@ -1,7 +1,8 @@
 "use client"
 
 import dynamic from "next/dynamic"
-import { useEffect, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
+
 import AIChat from "@/components/AIChat"
 
 const StudyScene = dynamic(
@@ -9,11 +10,7 @@ const StudyScene = dynamic(
   {
     ssr: false,
     loading: () => (
-      <div
-        className="mt-8 flex h-[300px] items-center justify-center rounded-xl border border-slate-800 bg-slate-900 text-sm text-slate-400 sm:h-[400px]"
-        role="status"
-        aria-live="polite"
-      >
+      <div className="mt-8 flex h-[300px] items-center justify-center rounded-3xl border border-slate-800 bg-slate-900 text-sm text-slate-400 sm:h-[400px]">
         Loading 3D Study Desk...
       </div>
     ),
@@ -27,6 +24,12 @@ type Task = {
   deadline: string
   priority: string
   completed: boolean
+}
+
+type ProfileData = {
+  username?: string
+  email?: string
+  bio?: string
 }
 
 export default function Home() {
@@ -54,6 +57,7 @@ export default function Home() {
   const [searchQuery, setSearchQuery] = useState("")
   const [taskStatus, setTaskStatus] = useState("All")
   const [showProfileMenu, setShowProfileMenu] = useState(false)
+  const [profile, setProfile] = useState<ProfileData>({})
 
   const [aiTasks, setAiTasks] = useState<
     {
@@ -68,9 +72,27 @@ export default function Home() {
     const savedTasks = localStorage.getItem("studypilot-tasks")
 
     if (savedTasks) {
-      setTasks(JSON.parse(savedTasks))
+      try {
+        setTasks(JSON.parse(savedTasks))
+      } catch {
+        localStorage.removeItem("studypilot-tasks")
+      }
+    }
+
+    const savedProfile = localStorage.getItem("studypilot-profile")
+
+    if (savedProfile) {
+      try {
+        setProfile(JSON.parse(savedProfile))
+      } catch {
+        localStorage.removeItem("studypilot-profile")
+      }
     }
   }, [])
+
+  useEffect(() => {
+    localStorage.setItem("studypilot-tasks", JSON.stringify(tasks))
+  }, [tasks])
 
   useEffect(() => {
     const startLocationTracking = async () => {
@@ -146,6 +168,16 @@ export default function Home() {
     )
   }, [])
 
+  const displayName = profile.username?.trim() || "Student"
+
+  const initials = displayName
+    .split(" ")
+    .filter(Boolean)
+    .map((part) => part[0])
+    .join("")
+    .slice(0, 2)
+    .toUpperCase()
+
   const resetForm = () => {
     setTitle("")
     setSubject("")
@@ -167,7 +199,7 @@ export default function Home() {
       completed: false,
     }
 
-    setTasks([...tasks, newTask])
+    setTasks((current) => [...current, newTask])
     resetForm()
   }
 
@@ -183,8 +215,8 @@ export default function Home() {
   const updateTask = () => {
     if (!editingTask || !title || !subject || !deadline) return
 
-    setTasks(
-      tasks.map((task) =>
+    setTasks((current) =>
+      current.map((task) =>
         task.id === editingTask.id
           ? {
               ...task,
@@ -207,12 +239,12 @@ export default function Home() {
 
     if (!confirmed) return
 
-    setTasks(tasks.filter((task) => task.id !== id))
+    setTasks((current) => current.filter((task) => task.id !== id))
   }
 
   const toggleTask = (id: number) => {
-    setTasks(
-      tasks.map((task) =>
+    setTasks((current) =>
+      current.map((task) =>
         task.id === id
           ? { ...task, completed: !task.completed }
           : task
@@ -421,7 +453,7 @@ export default function Home() {
   })
 
   const getDeadlineStatus = (
-    deadline: string,
+    deadlineValue: string,
     completed: boolean
   ) => {
     if (completed) {
@@ -434,7 +466,7 @@ export default function Home() {
     const currentDate = new Date()
     currentDate.setHours(0, 0, 0, 0)
 
-    const deadlineDate = new Date(deadline)
+    const deadlineDate = new Date(deadlineValue)
     deadlineDate.setHours(0, 0, 0, 0)
 
     if (deadlineDate < currentDate) {
@@ -457,45 +489,85 @@ export default function Home() {
     }
   }
 
+  const greeting = useMemo(() => {
+    const hour = new Date().getHours()
+
+    if (hour < 12) return "Good morning"
+    if (hour < 18) return "Good afternoon"
+
+    return "Good evening"
+  }, [])
+
   return (
     <main
       id="main-content"
       className="min-h-screen bg-slate-950 text-white"
     >
+      {/* NAVBAR */}
       <nav
-        className="sticky top-0 z-50 border-b border-slate-800/80 bg-slate-950/90 backdrop-blur"
+        className="sticky top-0 z-50 border-b border-slate-800/80 bg-slate-950/80 backdrop-blur-xl"
         aria-label="Main navigation"
       >
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
-          <div className="flex items-center gap-8">
+        <div className="mx-auto flex h-[76px] max-w-7xl items-center justify-between px-4 sm:px-6">
+          <div className="flex items-center gap-5 lg:gap-10">
             <a
               href="#page-title"
-              className="text-xl font-bold tracking-tight text-white"
+              className="group flex items-center gap-2.5"
             >
-              Study<span className="text-blue-500">Pilot</span>
+              <span className="relative flex h-9 w-9 items-center justify-center overflow-hidden rounded-xl bg-blue-600 shadow-lg shadow-blue-600/20">
+                <span className="absolute inset-0 bg-gradient-to-br from-blue-400 via-blue-600 to-indigo-700" />
+
+                <svg
+                  className="relative z-10 h-5 w-5 text-white"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path d="M4 19V5" />
+                  <path d="M4 5c5-2 10 2 16 0v14c-6 2-11-2-16 0" />
+                  <path d="M8 8h8" />
+                  <path d="M8 12h6" />
+                </svg>
+              </span>
+
+              <span className="text-xl font-bold tracking-[-0.04em] text-white">
+                Study<span className="text-blue-400">Pilot</span>
+              </span>
             </a>
 
-            <div className="hidden items-center gap-6 md:flex">
+            <div className="hidden items-center gap-1 rounded-2xl border border-slate-800/70 bg-slate-900/40 p-1 md:flex">
               <a
                 href="#overview-heading"
-                className="text-sm font-medium text-blue-400 transition hover:text-blue-300"
+                className="relative rounded-xl bg-blue-600/10 px-4 py-2 text-sm font-medium text-blue-400 transition hover:bg-blue-600/15"
               >
                 Dashboard
+
+                <span className="absolute bottom-0 left-1/2 h-0.5 w-5 -translate-x-1/2 rounded-full bg-blue-500" />
               </a>
 
               <a
                 href="#ai-planner-heading"
-                className="text-sm font-medium text-slate-400 transition hover:text-white"
+                className="rounded-xl px-4 py-2 text-sm font-medium text-slate-400 transition hover:bg-slate-800/70 hover:text-white"
               >
                 AI Planner
+              </a>
+
+              <a
+                href="#study-scene-heading"
+                className="rounded-xl px-4 py-2 text-sm font-medium text-slate-400 transition hover:bg-slate-800/70 hover:text-white"
+              >
+                Study Desk
               </a>
             </div>
           </div>
 
           <div className="relative flex items-center gap-3">
             <div className="hidden text-right sm:block">
-              <p className="text-sm font-medium text-white">
-                Student
+              <p className="text-sm font-semibold text-white">
+                {displayName}
               </p>
 
               <p className="text-xs text-slate-500">
@@ -508,30 +580,39 @@ export default function Home() {
               onClick={() =>
                 setShowProfileMenu((previous) => !previous)
               }
-              className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-600 text-sm font-bold text-white transition hover:bg-blue-500 hover:ring-4 hover:ring-blue-500/20"
+              className="group relative flex h-11 w-11 items-center justify-center rounded-full border border-blue-400/30 bg-gradient-to-br from-blue-500 to-indigo-600 text-sm font-bold text-white shadow-lg shadow-blue-600/15 transition hover:scale-105 hover:border-blue-300/60 hover:shadow-blue-500/30"
               aria-label="Open profile menu"
               aria-expanded={showProfileMenu}
               title="Profile"
             >
-              S
+              <span>{initials || "S"}</span>
+
+              <span className="absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full border-2 border-slate-950 bg-emerald-400" />
             </button>
 
             {showProfileMenu && (
-              <div className="absolute right-0 top-14 z-[100] w-72 overflow-hidden rounded-2xl border border-slate-800 bg-slate-900 shadow-2xl">
-                <div className="border-b border-slate-800 p-4">
-                  <div className="flex items-center gap-3">
-                    <div className="flex h-12 w-12 items-center justify-center rounded-full bg-blue-600 text-lg font-bold text-white">
-                      S
+              <div className="absolute right-0 top-14 z-[100] w-[310px] overflow-hidden rounded-3xl border border-slate-700/70 bg-slate-900/95 shadow-2xl shadow-black/30 backdrop-blur-2xl">
+                <div className="relative overflow-hidden border-b border-slate-800 p-5">
+                  <div className="absolute -right-10 -top-10 h-32 w-32 rounded-full bg-blue-600/10 blur-2xl" />
+
+                  <div className="relative flex items-center gap-4">
+                    <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 text-lg font-bold text-white shadow-lg shadow-blue-600/20">
+                      {initials || "S"}
                     </div>
 
                     <div className="min-w-0">
                       <p className="truncate font-semibold text-white">
-                        Student
+                        {displayName}
                       </p>
 
-                      <p className="truncate text-sm text-slate-500">
-                        Study smarter
+                      <p className="mt-0.5 truncate text-sm text-slate-500">
+                        {profile.email || "Study smarter"}
                       </p>
+
+                      <div className="mt-2 inline-flex items-center gap-1.5 rounded-full bg-emerald-500/10 px-2 py-1 text-[11px] font-medium text-emerald-400">
+                        <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
+                        Active learner
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -540,12 +621,12 @@ export default function Home() {
                   <a
                     href="/profile"
                     onClick={() => setShowProfileMenu(false)}
-                    className="flex items-center gap-3 rounded-xl px-3 py-3 text-sm text-slate-300 transition hover:bg-slate-800 hover:text-white"
+                    className="group flex items-center gap-3 rounded-2xl px-3 py-3.5 text-sm text-slate-300 transition hover:bg-slate-800/80 hover:text-white"
                   >
-                    <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-blue-500/10 text-blue-400">
+                    <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-500/10 text-blue-400 transition group-hover:bg-blue-500/15">
                       <svg
-                        width="18"
-                        height="18"
+                        width="19"
+                        height="19"
                         viewBox="0 0 24 24"
                         fill="none"
                         stroke="currentColor"
@@ -558,26 +639,40 @@ export default function Home() {
                       </svg>
                     </span>
 
-                    <span>
+                    <span className="flex-1">
                       <span className="block font-medium">
                         View Profile
                       </span>
 
-                      <span className="block text-xs text-slate-500">
-                        Profile & settings
+                      <span className="mt-0.5 block text-xs text-slate-500">
+                        Profile & personal information
                       </span>
                     </span>
+
+                    <svg
+                      width="16"
+                      height="16"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      className="text-slate-600 transition group-hover:translate-x-0.5 group-hover:text-slate-400"
+                    >
+                      <path d="m9 18 6-6-6-6" />
+                    </svg>
                   </a>
 
                   <a
                     href="/profile#app-settings"
                     onClick={() => setShowProfileMenu(false)}
-                    className="flex items-center gap-3 rounded-xl px-3 py-3 text-sm text-slate-300 transition hover:bg-slate-800 hover:text-white"
+                    className="group flex items-center gap-3 rounded-2xl px-3 py-3.5 text-sm text-slate-300 transition hover:bg-slate-800/80 hover:text-white"
                   >
-                    <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-blue-500/10 text-blue-400">
+                    <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-500/10 text-indigo-400">
                       <svg
-                        width="18"
-                        height="18"
+                        width="19"
+                        height="19"
                         viewBox="0 0 24 24"
                         fill="none"
                         stroke="currentColor"
@@ -585,20 +680,34 @@ export default function Home() {
                         strokeLinecap="round"
                         strokeLinejoin="round"
                       >
-                        <path d="M12 15.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Z" />
-                        <path d="M19.4 15a1.7 1.7 0 0 0 .34 1.88l.06.06-1.4 1.4-.06-.06a1.7 1.7 0 0 0-1.88-.34 1.7 1.7 0 0 0-1.03 1.56V20h-2v-.5a1.7 1.7 0 0 0-1.03-1.56 1.7 1.7 0 0 0-1.88.34l-.06.06-1.4-1.4.06-.06A1.7 1.7 0 0 0 8.6 15a1.7 1.7 0 0 0-1.56-1.03H6v-2h1.04A1.7 1.7 0 0 0 8.6 10a1.7 1.7 0 0 0-.34-1.88L8.2 8.06l1.4-1.4.06.06a1.7 1.7 0 0 0 1.88-.34A1.7 1.7 0 0 0 12.57 5.5V5h2v.5A1.7 1.7 0 0 0 15.6 7.06a1.7 1.7 0 0 0 1.88-.34l.06-.06 1.4 1.4-.06.06A1.7 1.7 0 0 0 18.6 10a1.7 1.7 0 0 0 1.56 1.03H21v2h-.84A1.7 1.7 0 0 0 19.4 15Z" />
+                        <circle cx="12" cy="12" r="3" />
+                        <path d="M19.4 15a1.7 1.7 0 0 0 .34 1.88l.06.06-1.4 1.4-.06-.06a1.7 1.7 0 0 0-1.88-.34 1.7 1.7 0 0 0-1.03 1.56V20h-2v-.5a1.7 1.7 0 0 0-1.03-1.56 1.7 1.7 0 0 0-1.88.34l-.06.06-1.4-1.4.06-.06A1.7 1.7 0 0 0 8.6 15a1.7 1.7 0 0 0-1.56-1.03H6v-2h1.04A1.7 1.7 0 0 0 8.6 10a1.7 1.7 0 0 0-.34-1.88L8.2 8.06l1.4-1.4.06.06a1.7 1.7 0 0 0 1.88.34A1.7 1.7 0 0 0 12.57 5.5V5h2v.5A1.7 1.7 0 0 0 15.6 7.06a1.7 1.7 0 0 0 1.88-.34l.06-.06 1.4 1.4-.06.06A1.7 1.7 0 0 0 18.6 10a1.7 1.7 0 0 0 1.56 1.03H21v2h-.84A1.7 1.7 0 0 0 19.4 15Z" />
                       </svg>
                     </span>
 
-                    <span>
+                    <span className="flex-1">
                       <span className="block font-medium">
                         Settings
                       </span>
 
-                      <span className="block text-xs text-slate-500">
-                        App preferences
+                      <span className="mt-0.5 block text-xs text-slate-500">
+                        Appearance & preferences
                       </span>
                     </span>
+
+                    <svg
+                      width="16"
+                      height="16"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      className="text-slate-600"
+                    >
+                      <path d="m9 18 6-6-6-6" />
+                    </svg>
                   </a>
                 </div>
               </div>
@@ -607,141 +716,312 @@ export default function Home() {
         </div>
       </nav>
 
-      <div className="mx-auto max-w-7xl px-6 py-10">
+      <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 sm:py-10">
+        {/* HERO */}
         <header
-          className="mb-10 flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between"
+          className="relative mb-10 overflow-hidden rounded-[2rem] border border-blue-500/10 bg-gradient-to-br from-blue-600/[0.12] via-indigo-500/[0.06] to-transparent p-6 sm:p-8 lg:p-10"
           aria-labelledby="page-title"
         >
-          <div>
-            <h1
-              id="page-title"
-              className="text-3xl font-bold"
-            >
-              StudyPilot
-            </h1>
+          <div className="pointer-events-none absolute -right-24 -top-28 h-72 w-72 rounded-full bg-blue-500/10 blur-3xl" />
+          <div className="pointer-events-none absolute -bottom-32 left-1/3 h-64 w-64 rounded-full bg-indigo-500/[0.08] blur-3xl" />
 
-            <p className="mt-1 text-slate-400">
-              Your AI-powered study planner
-            </p>
+          <div className="relative flex flex-col gap-8 lg:flex-row lg:items-end lg:justify-between">
+            <div className="max-w-2xl">
+              <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-blue-400/15 bg-blue-500/[0.07] px-3 py-1.5 text-xs font-medium text-blue-400">
+                <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-blue-400" />
+                Personal study dashboard
+              </div>
+
+              <h1
+                id="page-title"
+                className="text-4xl font-bold tracking-[-0.045em] text-white sm:text-5xl"
+              >
+                {greeting},{" "}
+                <span className="bg-gradient-to-r from-blue-400 via-indigo-400 to-violet-400 bg-clip-text text-transparent">
+                  {displayName}
+                </span>
+                .
+              </h1>
+
+              <p className="mt-4 max-w-xl text-base leading-7 text-slate-400 sm:text-lg">
+                Keep your tasks organized, track your progress, and let AI
+                build a study plan around your goals.
+              </p>
+
+              <div className="mt-7 flex flex-wrap gap-3">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setEditingTask(null)
+                    setShowForm(true)
+                  }}
+                  className="group inline-flex items-center gap-2 rounded-xl bg-blue-600 px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-blue-600/20 transition hover:-translate-y-0.5 hover:bg-blue-500 hover:shadow-blue-500/30"
+                >
+                  <span className="text-lg leading-none transition group-hover:rotate-90">
+                    +
+                  </span>
+                  Add task
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowAIForm(true)
+                    setAiError("")
+                  }}
+                  className="inline-flex items-center gap-2 rounded-xl border border-slate-700/80 bg-slate-900/60 px-5 py-3 text-sm font-semibold text-slate-200 backdrop-blur transition hover:-translate-y-0.5 hover:border-blue-500/40 hover:bg-slate-800/80"
+                >
+                  <svg
+                    width="17"
+                    height="17"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <path d="m12 3-1.5 5.5L5 10l5.5 1.5L12 17l1.5-5.5L19 10l-5.5-1.5L12 3Z" />
+                    <path d="m19 15-.75 2.75L15.5 18.5l2.75.75L19 22l.75-2.75 2.75-.75-2.75-.75L19 15Z" />
+                  </svg>
+                  Generate with AI
+                </button>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 lg:w-[430px]">
+              <div className="rounded-2xl border border-white/[0.06] bg-white/[0.035] p-4 backdrop-blur">
+                <p className="text-xs text-slate-500">Tasks</p>
+                <p className="mt-2 text-2xl font-bold text-white">
+                  {tasks.length}
+                </p>
+              </div>
+
+              <div className="rounded-2xl border border-white/[0.06] bg-white/[0.035] p-4 backdrop-blur">
+                <p className="text-xs text-slate-500">Done</p>
+                <p className="mt-2 text-2xl font-bold text-emerald-400">
+                  {completedTasks}
+                </p>
+              </div>
+
+              <div className="rounded-2xl border border-white/[0.06] bg-white/[0.035] p-4 backdrop-blur">
+                <p className="text-xs text-slate-500">Upcoming</p>
+                <p className="mt-2 text-2xl font-bold text-blue-400">
+                  {upcomingTasks.length}
+                </p>
+              </div>
+
+              <div className="rounded-2xl border border-white/[0.06] bg-white/[0.035] p-4 backdrop-blur">
+                <p className="text-xs text-slate-500">Progress</p>
+                <p className="mt-2 text-2xl font-bold text-violet-400">
+                  {progress}%
+                </p>
+              </div>
+            </div>
           </div>
-
-          <button
-            type="button"
-            onClick={() => {
-              setEditingTask(null)
-              setShowForm(true)
-            }}
-            className="w-full rounded-lg bg-blue-600 px-5 py-2.5 font-medium transition hover:bg-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:ring-offset-slate-950 sm:w-auto"
-          >
-            + Add Task
-          </button>
         </header>
 
+        {/* OVERVIEW */}
         <section
           className="mb-8"
           aria-labelledby="overview-heading"
         >
-          <h2
-            id="overview-heading"
-            className="text-2xl font-semibold"
-          >
-            Good morning!
-          </h2>
+          <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-end">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-blue-400">
+                Overview
+              </p>
 
-          <p className="mt-2 text-slate-400">
-            Here is your study overview for today.
-          </p>
+              <h2
+                id="overview-heading"
+                className="mt-2 text-2xl font-bold tracking-tight text-white"
+              >
+                Your study at a glance
+              </h2>
+
+              <p className="mt-1 text-sm text-slate-400">
+                Everything important about your current workload.
+              </p>
+            </div>
+          </div>
         </section>
 
+        {/* STAT CARDS */}
         <section
-          className="grid gap-5 md:grid-cols-4"
+          className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4"
           aria-label="Study statistics"
         >
-          <div className="rounded-xl border border-slate-800 bg-slate-900 p-6">
-            <p className="text-sm text-slate-400">
-              Total Tasks
-            </p>
+          {[
+            {
+              label: "Total Tasks",
+              value: tasks.length,
+              description: "All study tasks",
+              icon: "layers",
+              accent: "blue",
+            },
+            {
+              label: "Completed",
+              value: completedTasks,
+              description: `${progress}% completion rate`,
+              icon: "check",
+              accent: "green",
+            },
+            {
+              label: "Upcoming",
+              value: upcomingTasks.length,
+              description: "Upcoming deadlines",
+              icon: "calendar",
+              accent: "violet",
+            },
+            {
+              label: "High Priority",
+              value: highPriorityTasks,
+              description: "Need your attention",
+              icon: "bolt",
+              accent: "orange",
+            },
+          ].map((stat) => (
+            <div
+              key={stat.label}
+              className="group relative overflow-hidden rounded-2xl border border-slate-800/80 bg-slate-900/65 p-5 backdrop-blur-sm transition duration-300 hover:-translate-y-1 hover:border-blue-500/20 hover:shadow-xl hover:shadow-blue-950/20"
+            >
+              <div className="flex items-start justify-between">
+                <div>
+                  <p className="text-sm font-medium text-slate-400">
+                    {stat.label}
+                  </p>
 
-            <p className="mt-2 text-3xl font-bold">
-              {tasks.length}
-            </p>
+                  <p className="mt-3 text-3xl font-bold tracking-tight text-white">
+                    {stat.value}
+                  </p>
+                </div>
 
-            <p className="mt-2 text-xs text-slate-500">
-              All your study tasks
-            </p>
-          </div>
+                <span
+                  className={`flex h-10 w-10 items-center justify-center rounded-xl ${
+                    stat.accent === "blue"
+                      ? "bg-blue-500/10 text-blue-400"
+                      : stat.accent === "green"
+                        ? "bg-emerald-500/10 text-emerald-400"
+                        : stat.accent === "violet"
+                          ? "bg-violet-500/10 text-violet-400"
+                          : "bg-orange-500/10 text-orange-400"
+                  }`}
+                >
+                  {stat.icon === "layers" && (
+                    <svg
+                      width="19"
+                      height="19"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                    >
+                      <path d="m12 3 9 5-9 5-9-5 9-5Z" />
+                      <path d="m3 12 9 5 9-5" />
+                      <path d="m3 16 9 5 9-5" />
+                    </svg>
+                  )}
 
-          <div className="rounded-xl border border-slate-800 bg-slate-900 p-6">
-            <p className="text-sm text-slate-400">
-              Completed
-            </p>
+                  {stat.icon === "check" && (
+                    <svg
+                      width="19"
+                      height="19"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                    >
+                      <path d="m5 12 4 4L19 6" />
+                    </svg>
+                  )}
 
-            <p className="mt-2 text-3xl font-bold">
-              {completedTasks}
-            </p>
+                  {stat.icon === "calendar" && (
+                    <svg
+                      width="19"
+                      height="19"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                    >
+                      <rect x="3" y="4" width="18" height="17" rx="2" />
+                      <path d="M16 2v4M8 2v4M3 10h18" />
+                    </svg>
+                  )}
 
-            <p className="mt-2 text-xs text-slate-500">
-              {progress}% completion rate
-            </p>
-          </div>
+                  {stat.icon === "bolt" && (
+                    <svg
+                      width="19"
+                      height="19"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                    >
+                      <path d="m13 2-9 12h7l-1 8 9-12h-7l1-8Z" />
+                    </svg>
+                  )}
+                </span>
+              </div>
 
-          <div className="rounded-xl border border-slate-800 bg-slate-900 p-6">
-            <p className="text-sm text-slate-400">
-              Upcoming
-            </p>
+              <p className="mt-3 text-xs text-slate-500">
+                {stat.description}
+              </p>
 
-            <p className="mt-2 text-3xl font-bold">
-              {upcomingTasks.length}
-            </p>
-
-            <p className="mt-2 text-xs text-slate-500">
-              Tasks with upcoming deadlines
-            </p>
-          </div>
-
-          <div className="rounded-xl border border-slate-800 bg-slate-900 p-6">
-            <p className="text-sm text-slate-400">
-              High Priority
-            </p>
-
-            <p className="mt-2 text-3xl font-bold">
-              {highPriorityTasks}
-            </p>
-
-            <p className="mt-2 text-xs text-slate-500">
-              Tasks requiring attention
-            </p>
-          </div>
+              <div className="absolute -bottom-12 -right-12 h-24 w-24 rounded-full bg-blue-500/[0.04] blur-2xl transition group-hover:bg-blue-500/[0.08]" />
+            </div>
+          ))}
         </section>
 
+        {/* OVERVIEW DETAILS */}
         <section
-          className="mt-8 grid gap-6 lg:grid-cols-2"
+          className="mt-6 grid gap-6 lg:grid-cols-[1.15fr_0.85fr]"
           aria-label="Study overview details"
         >
-          <div className="rounded-xl border border-slate-800 bg-slate-900 p-6">
-            <div className="flex items-center justify-between">
+          {/* DEADLINES */}
+          <div className="rounded-3xl border border-slate-800/80 bg-slate-900/60 p-6 backdrop-blur-sm">
+            <div className="flex items-start justify-between gap-4">
               <div>
-                <h2 className="text-xl font-semibold">
+                <p className="text-xs font-semibold uppercase tracking-[0.16em] text-blue-400">
+                  Schedule
+                </p>
+
+                <h2 className="mt-2 text-xl font-bold text-white">
                   Upcoming Deadlines
                 </h2>
 
                 <p className="mt-1 text-sm text-slate-400">
-                  Keep track of your next study deadlines.
+                  Your next study commitments.
                 </p>
               </div>
 
-              <span
-                className="rounded-full bg-blue-950 px-3 py-1 text-xs text-blue-400"
-                aria-label={`${upcomingTasks.length} upcoming deadlines`}
-              >
+              <span className="rounded-full border border-blue-500/15 bg-blue-500/10 px-3 py-1 text-xs font-semibold text-blue-400">
                 {upcomingTasks.length}
               </span>
             </div>
 
             {upcomingTasks.length === 0 ? (
-              <div className="mt-6 rounded-lg border border-dashed border-slate-700 p-6 text-center">
-                <p className="text-sm text-slate-400">
-                  No upcoming deadlines.
+              <div className="mt-6 rounded-2xl border border-dashed border-slate-700/80 bg-slate-950/30 p-8 text-center">
+                <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-blue-500/10 text-blue-400">
+                  <svg
+                    width="21"
+                    height="21"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                  >
+                    <path d="M12 6v6l4 2" />
+                    <circle cx="12" cy="12" r="9" />
+                  </svg>
+                </div>
+
+                <p className="mt-4 text-sm font-medium text-slate-300">
+                  No upcoming deadlines
+                </p>
+
+                <p className="mt-1 text-xs text-slate-500">
+                  Your schedule is clear for now.
                 </p>
               </div>
             ) : (
@@ -749,20 +1029,26 @@ export default function Home() {
                 {upcomingTasks.map((task) => (
                   <div
                     key={task.id}
-                    className="flex items-center justify-between rounded-lg border border-slate-800 bg-slate-950 p-4"
+                    className="group flex items-center justify-between gap-4 rounded-2xl border border-slate-800/70 bg-slate-950/45 p-4 transition hover:border-blue-500/20 hover:bg-slate-950/70"
                   >
-                    <div>
-                      <h3 className="font-medium">
-                        {task.title}
-                      </h3>
+                    <div className="flex min-w-0 items-center gap-3">
+                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-blue-500/10 text-xs font-bold text-blue-400">
+                        {task.subject.slice(0, 2).toUpperCase()}
+                      </div>
 
-                      <p className="mt-1 text-sm text-slate-400">
-                        {task.subject}
-                      </p>
+                      <div className="min-w-0">
+                        <h3 className="truncate text-sm font-semibold text-white">
+                          {task.title}
+                        </h3>
+
+                        <p className="mt-1 truncate text-xs text-slate-500">
+                          {task.subject}
+                        </p>
+                      </div>
                     </div>
 
-                    <div className="text-right">
-                      <p className="text-sm font-medium">
+                    <div className="shrink-0 text-right">
+                      <p className="text-sm font-semibold text-slate-300">
                         {task.deadline}
                       </p>
 
@@ -781,18 +1067,6 @@ export default function Home() {
                           ).label
                         }
                       </p>
-
-                      <span
-                        className={`text-xs ${
-                          task.priority === "High"
-                            ? "text-red-400"
-                            : task.priority === "Medium"
-                              ? "text-yellow-400"
-                              : "text-green-400"
-                        }`}
-                      >
-                        {task.priority} priority
-                      </span>
                     </div>
                   </div>
                 ))}
@@ -800,30 +1074,33 @@ export default function Home() {
             )}
           </div>
 
-          <div className="rounded-xl border border-slate-800 bg-slate-900 p-6">
-            <div>
-              <h2 className="text-xl font-semibold">
-                Study Progress
-              </h2>
+          {/* PROGRESS */}
+          <div className="rounded-3xl border border-slate-800/80 bg-slate-900/60 p-6 backdrop-blur-sm">
+            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-violet-400">
+              Performance
+            </p>
 
-              <p className="mt-1 text-sm text-slate-400">
-                Your overall task completion progress.
-              </p>
-            </div>
+            <h2 className="mt-2 text-xl font-bold text-white">
+              Study Progress
+            </h2>
+
+            <p className="mt-1 text-sm text-slate-400">
+              Your overall completion rate.
+            </p>
 
             <div className="mt-8">
-              <div className="mb-3 flex items-center justify-between">
-                <span className="text-sm text-slate-400">
+              <div className="flex items-end justify-between">
+                <span className="text-sm text-slate-500">
                   Overall progress
                 </span>
 
-                <span className="font-semibold">
+                <span className="text-3xl font-bold text-white">
                   {progress}%
                 </span>
               </div>
 
               <div
-                className="h-3 overflow-hidden rounded-full bg-slate-800"
+                className="mt-4 h-3 overflow-hidden rounded-full bg-slate-800"
                 role="progressbar"
                 aria-valuenow={progress}
                 aria-valuemin={0}
@@ -831,29 +1108,29 @@ export default function Home() {
                 aria-label="Overall study progress"
               >
                 <div
-                  className="h-full rounded-full bg-blue-600 transition-all duration-500"
+                  className="h-full rounded-full bg-gradient-to-r from-blue-500 via-indigo-500 to-violet-500 transition-all duration-700"
                   style={{ width: `${progress}%` }}
                 />
               </div>
             </div>
 
-            <div className="mt-8 grid grid-cols-2 gap-4">
-              <div className="rounded-lg bg-slate-950 p-4">
-                <p className="text-sm text-slate-400">
+            <div className="mt-8 grid grid-cols-2 gap-3">
+              <div className="rounded-2xl border border-slate-800/70 bg-slate-950/40 p-4">
+                <p className="text-xs text-slate-500">
                   Completed
                 </p>
 
-                <p className="mt-1 text-2xl font-bold">
+                <p className="mt-2 text-2xl font-bold text-emerald-400">
                   {completedTasks}
                 </p>
               </div>
 
-              <div className="rounded-lg bg-slate-950 p-4">
-                <p className="text-sm text-slate-400">
+              <div className="rounded-2xl border border-slate-800/70 bg-slate-950/40 p-4">
+                <p className="text-xs text-slate-500">
                   Remaining
                 </p>
 
-                <p className="mt-1 text-2xl font-bold">
+                <p className="mt-2 text-2xl font-bold text-blue-400">
                   {tasks.length - completedTasks}
                 </p>
               </div>
@@ -861,66 +1138,101 @@ export default function Home() {
 
             {overdueTasks.length > 0 && (
               <div
-                className="mt-5 rounded-lg border border-red-900 bg-red-950/30 p-4"
+                className="mt-4 rounded-2xl border border-red-900/60 bg-red-950/20 p-4"
                 role="alert"
               >
-                <p className="text-sm font-medium text-red-400">
+                <p className="text-sm font-semibold text-red-400">
                   {overdueTasks.length} overdue task
                   {overdueTasks.length > 1 ? "s" : ""}
                 </p>
 
                 <p className="mt-1 text-xs text-red-400/70">
-                  Review your deadlines and update your study plan.
+                  Review your deadlines and update your plan.
                 </p>
               </div>
             )}
           </div>
         </section>
 
+        {/* TASKS */}
         <section
-          className="mt-8 rounded-xl border border-slate-800 bg-slate-900 p-6"
+          className="mt-6 rounded-3xl border border-slate-800/80 bg-slate-900/60 p-5 backdrop-blur-sm sm:p-6"
           aria-labelledby="study-plan-heading"
         >
-          <div className="space-y-5">
-            <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-              <h2
-                id="study-plan-heading"
-                className="text-xl font-semibold"
-              >
-                Today&apos;s Study Plan
-              </h2>
+          <div className="flex flex-col gap-5">
+            <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-[0.16em] text-blue-400">
+                  Workspace
+                </p>
 
-              <div
-                className="flex flex-wrap gap-2"
-                role="group"
-                aria-label="Filter tasks by subject"
-              >
-                {subjects.map((item) => (
-                  <button
-                    key={item}
-                    type="button"
-                    onClick={() => setSelectedSubject(item)}
-                    aria-pressed={selectedSubject === item}
-                    className={`rounded-lg px-4 py-2 text-sm font-medium transition focus:outline-none focus:ring-2 focus:ring-blue-400 ${
-                      selectedSubject === item
-                        ? "bg-blue-600 text-white"
-                        : "bg-slate-800 text-slate-300 hover:bg-slate-700"
-                    }`}
-                  >
-                    {item}
-                  </button>
-                ))}
+                <h2
+                  id="study-plan-heading"
+                  className="mt-2 text-xl font-bold text-white"
+                >
+                  Today&apos;s Study Plan
+                </h2>
+
+                <p className="mt-1 text-sm text-slate-400">
+                  Manage and organize your study tasks.
+                </p>
               </div>
+
+              <button
+                type="button"
+                onClick={() => {
+                  setEditingTask(null)
+                  setShowForm(true)
+                }}
+                className="rounded-xl bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-blue-500"
+              >
+                + Add task
+              </button>
+            </div>
+
+            <div
+              className="flex flex-wrap gap-2"
+              role="group"
+              aria-label="Filter tasks by subject"
+            >
+              {subjects.map((item) => (
+                <button
+                  key={item}
+                  type="button"
+                  onClick={() => setSelectedSubject(item)}
+                  aria-pressed={selectedSubject === item}
+                  className={`rounded-xl px-4 py-2 text-sm font-medium transition ${
+                    selectedSubject === item
+                      ? "bg-blue-600 text-white shadow-lg shadow-blue-600/15"
+                      : "border border-slate-800 bg-slate-950/40 text-slate-400 hover:border-slate-700 hover:bg-slate-800/70 hover:text-white"
+                  }`}
+                >
+                  {item}
+                </button>
+              ))}
             </div>
 
             <div className="flex flex-col gap-3 lg:flex-row">
-              <div className="flex-1">
+              <div className="relative flex-1">
                 <label
                   htmlFor="task-search"
                   className="sr-only"
                 >
                   Search tasks
                 </label>
+
+                <svg
+                  className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-slate-500"
+                  width="18"
+                  height="18"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                >
+                  <circle cx="11" cy="11" r="7" />
+                  <path d="m20 20-4-4" />
+                </svg>
 
                 <input
                   id="task-search"
@@ -929,8 +1241,8 @@ export default function Home() {
                   onChange={(e) =>
                     setSearchQuery(e.target.value)
                   }
-                  placeholder="Search tasks..."
-                  className="w-full rounded-lg border border-slate-700 bg-slate-950 px-4 py-3 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
+                  placeholder="Search tasks or subjects..."
+                  className="w-full rounded-xl border border-slate-800 bg-slate-950/50 py-3 pl-11 pr-4 text-sm text-white outline-none transition placeholder:text-slate-600 focus:border-blue-500/50 focus:ring-4 focus:ring-blue-500/10"
                 />
               </div>
 
@@ -944,14 +1256,12 @@ export default function Home() {
                     <button
                       key={status}
                       type="button"
-                      onClick={() =>
-                        setTaskStatus(status)
-                      }
+                      onClick={() => setTaskStatus(status)}
                       aria-pressed={taskStatus === status}
-                      className={`rounded-lg px-4 py-2 text-sm font-medium transition focus:outline-none focus:ring-2 focus:ring-blue-400 ${
+                      className={`rounded-xl px-4 py-2 text-sm font-medium transition ${
                         taskStatus === status
-                          ? "bg-blue-600 text-white"
-                          : "bg-slate-800 text-slate-300 hover:bg-slate-700"
+                          ? "bg-slate-700 text-white"
+                          : "border border-slate-800 bg-slate-950/30 text-slate-500 hover:bg-slate-800/70 hover:text-slate-300"
                       }`}
                     >
                       {status}
@@ -963,21 +1273,43 @@ export default function Home() {
           </div>
 
           {filteredTasks.length === 0 ? (
-            <div className="mt-6 rounded-xl border border-dashed border-slate-700 bg-slate-950/50 px-6 py-12 text-center">
-              <div
-                className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-blue-950 text-2xl"
-                aria-hidden="true"
-              >
-                {tasks.length === 0 ? "📚" : "🔎"}
+            <div className="mt-6 rounded-2xl border border-dashed border-slate-800 bg-slate-950/30 px-6 py-14 text-center">
+              <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-blue-500/10 text-blue-400">
+                {tasks.length === 0 ? (
+                  <svg
+                    width="24"
+                    height="24"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1.8"
+                  >
+                    <path d="M4 19V5" />
+                    <path d="M4 5c5-2 10 2 16 0v14c-6 2-11-2-16 0" />
+                    <path d="M8 8h8M8 12h6" />
+                  </svg>
+                ) : (
+                  <svg
+                    width="24"
+                    height="24"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1.8"
+                  >
+                    <circle cx="11" cy="11" r="7" />
+                    <path d="m20 20-4-4" />
+                  </svg>
+                )}
               </div>
 
-              <h3 className="mt-5 text-lg font-semibold">
+              <h3 className="mt-5 text-lg font-semibold text-white">
                 {tasks.length === 0
                   ? "No study tasks yet"
                   : "No tasks found"}
               </h3>
 
-              <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-slate-400">
+              <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-slate-500">
                 {tasks.length === 0
                   ? "Start organizing your studies by creating your first task."
                   : "Try changing your search, subject or status filter."}
@@ -990,9 +1322,9 @@ export default function Home() {
                     setEditingTask(null)
                     setShowForm(true)
                   }}
-                  className="mt-5 rounded-lg bg-blue-600 px-5 py-2.5 font-medium transition hover:bg-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                  className="mt-5 rounded-xl bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-blue-500"
                 >
-                  + Create your first task
+                  Create your first task
                 </button>
               )}
 
@@ -1004,75 +1336,59 @@ export default function Home() {
                     setTaskStatus("All")
                     setSelectedSubject("All")
                   }}
-                  className="mt-5 rounded-lg border border-slate-700 px-5 py-2.5 text-sm font-medium text-slate-300 transition hover:bg-slate-800 hover:text-white focus:outline-none focus:ring-2 focus:ring-blue-400"
+                  className="mt-5 rounded-xl border border-slate-700 px-5 py-2.5 text-sm font-medium text-slate-300 transition hover:bg-slate-800 hover:text-white"
                 >
                   Clear filters
                 </button>
               )}
             </div>
           ) : (
-            <div
-              className="mt-6 space-y-3"
-              aria-label="Study tasks"
-            >
+            <div className="mt-6 space-y-3">
               {filteredTasks.map((task) => (
                 <div
                   key={task.id}
-                  className="flex flex-col items-stretch gap-4 rounded-lg border border-slate-800 bg-slate-950 p-4 sm:flex-row sm:flex-wrap sm:items-center"
+                  className="group flex flex-col gap-4 rounded-2xl border border-slate-800/70 bg-slate-950/35 p-4 transition hover:border-blue-500/20 hover:bg-slate-950/60 sm:flex-row sm:items-center"
                 >
-                  <div>
-                    <label
-                      htmlFor={`task-${task.id}`}
-                      className="sr-only"
-                    >
-                      Mark {task.title} as completed
-                    </label>
+                  <input
+                    id={`task-${task.id}`}
+                    type="checkbox"
+                    checked={task.completed}
+                    onChange={() => toggleTask(task.id)}
+                    aria-label={`Mark ${task.title} as completed`}
+                    className="h-5 w-5 cursor-pointer accent-blue-600"
+                  />
 
-                    <input
-                      id={`task-${task.id}`}
-                      type="checkbox"
-                      checked={task.completed}
-                      onChange={() =>
-                        toggleTask(task.id)
-                      }
-                      className="h-5 w-5 cursor-pointer accent-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400"
-                    />
-                  </div>
-
-                  <div className="min-w-[200px] flex-1">
+                  <div className="min-w-0 flex-1">
                     <h3
                       className={`font-semibold ${
                         task.completed
                           ? "text-slate-500 line-through"
-                          : ""
+                          : "text-white"
                       }`}
                     >
                       {task.title}
                     </h3>
 
-                    <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm">
-                      <span className="text-slate-400">
+                    <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs">
+                      <span className="text-blue-400">
                         {task.subject}
                       </span>
 
-                      <span
-                        className="text-slate-600"
-                        aria-hidden="true"
-                      >
+                      <span className="text-slate-700">
                         •
                       </span>
 
-                      <span className="text-slate-400">
+                      <span className="text-slate-500">
                         Deadline: {task.deadline}
                       </span>
 
                       <span
-                        className={`font-medium ${
+                        className={
                           getDeadlineStatus(
                             task.deadline,
                             task.completed
                           ).className
-                        }`}
+                        }
                       >
                         {
                           getDeadlineStatus(
@@ -1085,53 +1401,73 @@ export default function Home() {
                   </div>
 
                   <span
-                    className={`rounded-full px-3 py-1 text-xs ${
+                    className={`w-fit rounded-full px-3 py-1.5 text-xs font-medium ${
                       task.priority === "High"
-                        ? "bg-red-950 text-red-400"
+                        ? "bg-red-500/10 text-red-400"
                         : task.priority === "Medium"
-                          ? "bg-yellow-950 text-yellow-400"
-                          : "bg-green-950 text-green-400"
+                          ? "bg-yellow-500/10 text-yellow-400"
+                          : "bg-emerald-500/10 text-emerald-400"
                     }`}
                   >
                     {task.priority}
                   </span>
 
-                  <button
-                    type="button"
-                    onClick={() => startEdit(task)}
-                    className="rounded-lg border border-slate-700 px-3 py-2 text-sm text-slate-300 transition hover:bg-slate-800 hover:text-white focus:outline-none focus:ring-2 focus:ring-blue-400"
-                  >
-                    Edit
-                  </button>
+                  <div className="flex gap-2">
+                    <button
+                      type="button"
+                      onClick={() => startEdit(task)}
+                      className="rounded-xl border border-slate-800 px-3 py-2 text-xs font-medium text-slate-400 transition hover:border-slate-700 hover:bg-slate-800 hover:text-white"
+                    >
+                      Edit
+                    </button>
 
-                  <button
-                    type="button"
-                    onClick={() => deleteTask(task.id)}
-                    className="rounded-lg border border-red-900 px-3 py-2 text-sm text-red-400 transition hover:bg-red-950 focus:outline-none focus:ring-2 focus:ring-red-400"
-                  >
-                    Delete
-                  </button>
+                    <button
+                      type="button"
+                      onClick={() => deleteTask(task.id)}
+                      className="rounded-xl border border-red-900/50 px-3 py-2 text-xs font-medium text-red-400 transition hover:bg-red-950/50"
+                    >
+                      Delete
+                    </button>
+                  </div>
                 </div>
               ))}
             </div>
           )}
         </section>
 
+        {/* AI PLANNER */}
         <section
-          className="mt-8 rounded-xl border border-blue-900 bg-blue-950/40 p-6"
+          className="relative mt-6 overflow-hidden rounded-3xl border border-blue-500/15 bg-gradient-to-br from-blue-600/[0.12] via-indigo-600/[0.08] to-violet-600/[0.06] p-6 sm:p-8"
           aria-labelledby="ai-planner-heading"
         >
-          <div className="flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
-            <div>
+          <div className="pointer-events-none absolute -right-20 -top-20 h-56 w-56 rounded-full bg-blue-500/10 blur-3xl" />
+
+          <div className="relative flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
+            <div className="max-w-2xl">
+              <div className="mb-3 inline-flex items-center gap-2 rounded-full bg-blue-500/10 px-3 py-1 text-xs font-medium text-blue-400">
+                <svg
+                  width="14"
+                  height="14"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                >
+                  <path d="m12 3-1.5 5.5L5 10l5.5 1.5L12 17l1.5-5.5L19 10l-5.5-1.5L12 3Z" />
+                </svg>
+                AI powered
+              </div>
+
               <h2
                 id="ai-planner-heading"
-                className="text-xl font-semibold"
+                className="text-2xl font-bold tracking-tight text-white"
               >
-                AI Study Planner
+                Build a study plan that fits your goal.
               </h2>
 
-              <p className="mt-2 text-sm text-slate-400">
-                Let AI create a personalized study plan based on your goals.
+              <p className="mt-2 max-w-xl text-sm leading-6 text-slate-400">
+                Give StudyPilot your goal, deadline, available time and
+                subjects. AI will turn them into an actionable study plan.
               </p>
             </div>
 
@@ -1141,31 +1477,39 @@ export default function Home() {
                 setShowAIForm(true)
                 setAiError("")
               }}
-              className="rounded-lg bg-white px-5 py-2.5 font-medium text-slate-900 transition hover:bg-slate-200 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-blue-950"
+              className="shrink-0 rounded-xl bg-white px-5 py-3 text-sm font-semibold text-slate-900 shadow-lg transition hover:-translate-y-0.5 hover:bg-slate-100 hover:shadow-xl"
             >
               Generate Plan
             </button>
           </div>
         </section>
 
+        {/* 3D STUDY DESK */}
         <section
-          className="mt-8"
+          className="mt-6"
           aria-labelledby="study-scene-heading"
         >
-          <h2
-            id="study-scene-heading"
-            className="sr-only"
-          >
-            3D Study Desk
-          </h2>
+          <div className="mb-4">
+            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-indigo-400">
+              Focus space
+            </p>
+
+            <h2
+              id="study-scene-heading"
+              className="mt-2 text-xl font-bold text-white"
+            >
+              Your Study Desk
+            </h2>
+          </div>
 
           <div className="hidden sm:block">
             <StudyScene />
           </div>
         </section>
 
+        {/* AI CHAT */}
         <section
-          className="mt-8"
+          className="mt-6"
           aria-labelledby="ai-chat-heading"
         >
           <h2
@@ -1178,29 +1522,36 @@ export default function Home() {
           <AIChat />
         </section>
 
+        {/* TASK MODAL */}
         {showForm && (
           <div
-            className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-4"
+            className="fixed inset-0 z-[200] flex items-center justify-center bg-slate-950/75 px-4 backdrop-blur-sm"
             role="dialog"
             aria-modal="true"
             aria-labelledby="task-dialog-title"
           >
-            <div className="w-full max-w-md rounded-xl border border-slate-800 bg-slate-900 p-6">
+            <div className="w-full max-w-md rounded-3xl border border-slate-700/70 bg-slate-900 p-6 shadow-2xl shadow-black/40">
               <div className="mb-6 flex items-center justify-between">
-                <h2
-                  id="task-dialog-title"
-                  className="text-xl font-semibold"
-                >
-                  {editingTask
-                    ? "Edit Study Task"
-                    : "Add Study Task"}
-                </h2>
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-[0.16em] text-blue-400">
+                    Workspace
+                  </p>
+
+                  <h2
+                    id="task-dialog-title"
+                    className="mt-1 text-xl font-bold text-white"
+                  >
+                    {editingTask
+                      ? "Edit Study Task"
+                      : "Add Study Task"}
+                  </h2>
+                </div>
 
                 <button
                   type="button"
                   onClick={resetForm}
                   aria-label="Close task dialog"
-                  className="rounded-md p-1 text-slate-400 hover:text-white focus:outline-none focus:ring-2 focus:ring-blue-400"
+                  className="rounded-xl p-2 text-slate-500 transition hover:bg-slate-800 hover:text-white"
                 >
                   ✕
                 </button>
@@ -1221,7 +1572,7 @@ export default function Home() {
                 <div>
                   <label
                     htmlFor="task-title"
-                    className="mb-2 block text-sm text-slate-300"
+                    className="mb-2 block text-sm font-medium text-slate-300"
                   >
                     Task title
                   </label>
@@ -1229,18 +1580,16 @@ export default function Home() {
                   <input
                     id="task-title"
                     value={title}
-                    onChange={(e) =>
-                      setTitle(e.target.value)
-                    }
+                    onChange={(e) => setTitle(e.target.value)}
                     placeholder="e.g. Study React Hooks"
-                    className="w-full rounded-lg border border-slate-700 bg-slate-950 px-4 py-3 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
+                    className="w-full rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-white outline-none transition placeholder:text-slate-600 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10"
                   />
                 </div>
 
                 <div>
                   <label
                     htmlFor="task-subject"
-                    className="mb-2 block text-sm text-slate-300"
+                    className="mb-2 block text-sm font-medium text-slate-300"
                   >
                     Subject
                   </label>
@@ -1248,18 +1597,16 @@ export default function Home() {
                   <input
                     id="task-subject"
                     value={subject}
-                    onChange={(e) =>
-                      setSubject(e.target.value)
-                    }
+                    onChange={(e) => setSubject(e.target.value)}
                     placeholder="e.g. Web Development"
-                    className="w-full rounded-lg border border-slate-700 bg-slate-950 px-4 py-3 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
+                    className="w-full rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-white outline-none transition placeholder:text-slate-600 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10"
                   />
                 </div>
 
                 <div>
                   <label
                     htmlFor="task-deadline"
-                    className="mb-2 block text-sm text-slate-300"
+                    className="mb-2 block text-sm font-medium text-slate-300"
                   >
                     Deadline
                   </label>
@@ -1268,17 +1615,15 @@ export default function Home() {
                     id="task-deadline"
                     type="date"
                     value={deadline}
-                    onChange={(e) =>
-                      setDeadline(e.target.value)
-                    }
-                    className="w-full rounded-lg border border-slate-700 bg-slate-950 px-4 py-3 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
+                    onChange={(e) => setDeadline(e.target.value)}
+                    className="w-full rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-white outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10"
                   />
                 </div>
 
                 <div>
                   <label
                     htmlFor="task-priority"
-                    className="mb-2 block text-sm text-slate-300"
+                    className="mb-2 block text-sm font-medium text-slate-300"
                   >
                     Priority
                   </label>
@@ -1286,10 +1631,8 @@ export default function Home() {
                   <select
                     id="task-priority"
                     value={priority}
-                    onChange={(e) =>
-                      setPriority(e.target.value)
-                    }
-                    className="w-full rounded-lg border border-slate-700 bg-slate-950 px-4 py-3 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
+                    onChange={(e) => setPriority(e.target.value)}
+                    className="w-full rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-white outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10"
                   >
                     <option>Low</option>
                     <option>Medium</option>
@@ -1299,46 +1642,48 @@ export default function Home() {
 
                 <button
                   type="submit"
-                  className="w-full rounded-lg bg-blue-600 py-3 font-medium transition hover:bg-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                  className="w-full rounded-xl bg-blue-600 py-3 font-semibold text-white transition hover:bg-blue-500"
                 >
-                  {editingTask
-                    ? "Save Changes"
-                    : "Add Task"}
+                  {editingTask ? "Save Changes" : "Add Task"}
                 </button>
               </form>
             </div>
           </div>
         )}
 
+        {/* AI MODAL */}
         {showAIForm && (
           <div
-            className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-4"
+            className="fixed inset-0 z-[200] flex items-center justify-center bg-slate-950/75 px-4 py-6 backdrop-blur-sm"
             role="dialog"
             aria-modal="true"
             aria-labelledby="ai-dialog-title"
           >
-            <div className="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-xl border border-slate-800 bg-slate-900 p-6">
-              <div className="mb-6 flex items-center justify-between">
+            <div className="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-3xl border border-slate-700/70 bg-slate-900 p-6 shadow-2xl shadow-black/40">
+              <div className="mb-6 flex items-start justify-between gap-4">
                 <div>
+                  <div className="mb-2 inline-flex items-center gap-2 rounded-full bg-blue-500/10 px-3 py-1 text-xs font-medium text-blue-400">
+                    <span className="h-1.5 w-1.5 rounded-full bg-blue-400" />
+                    AI Planner
+                  </div>
+
                   <h2
                     id="ai-dialog-title"
-                    className="text-xl font-semibold"
+                    className="text-xl font-bold text-white"
                   >
-                    AI Study Planner
+                    Create your study plan
                   </h2>
 
-                  <p className="mt-1 text-sm text-slate-400">
-                    Tell StudyPilot about your study goals.
+                  <p className="mt-1 text-sm text-slate-500">
+                    Tell StudyPilot what you want to achieve.
                   </p>
                 </div>
 
                 <button
                   type="button"
-                  onClick={() =>
-                    setShowAIForm(false)
-                  }
+                  onClick={() => setShowAIForm(false)}
                   aria-label="Close AI study planner"
-                  className="rounded-md p-1 text-slate-400 hover:text-white focus:outline-none focus:ring-2 focus:ring-blue-400"
+                  className="rounded-xl p-2 text-slate-500 transition hover:bg-slate-800 hover:text-white"
                 >
                   ✕
                 </button>
@@ -1354,7 +1699,7 @@ export default function Home() {
                 <div>
                   <label
                     htmlFor="study-goal"
-                    className="mb-2 block text-sm text-slate-300"
+                    className="mb-2 block text-sm font-medium text-slate-300"
                   >
                     Study goal
                   </label>
@@ -1362,18 +1707,16 @@ export default function Home() {
                   <input
                     id="study-goal"
                     value={goal}
-                    onChange={(e) =>
-                      setGoal(e.target.value)
-                    }
-                    placeholder="Your study goal"
-                    className="w-full rounded-lg border border-slate-700 bg-slate-950 px-4 py-3 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
+                    onChange={(e) => setGoal(e.target.value)}
+                    placeholder="e.g. Prepare for my React exam"
+                    className="w-full rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-white outline-none transition placeholder:text-slate-600 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10"
                   />
                 </div>
 
                 <div>
                   <label
                     htmlFor="exam-date"
-                    className="mb-2 block text-sm text-slate-300"
+                    className="mb-2 block text-sm font-medium text-slate-300"
                   >
                     Exam date
                   </label>
@@ -1382,17 +1725,15 @@ export default function Home() {
                     id="exam-date"
                     type="date"
                     value={examDate}
-                    onChange={(e) =>
-                      setExamDate(e.target.value)
-                    }
-                    className="w-full rounded-lg border border-slate-700 bg-slate-950 px-4 py-3 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
+                    onChange={(e) => setExamDate(e.target.value)}
+                    className="w-full rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-white outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10"
                   />
                 </div>
 
                 <div>
                   <label
                     htmlFor="study-hours"
-                    className="mb-2 block text-sm text-slate-300"
+                    className="mb-2 block text-sm font-medium text-slate-300"
                   >
                     Study hours per day
                   </label>
@@ -1403,18 +1744,16 @@ export default function Home() {
                     min="1"
                     max="12"
                     value={hoursPerDay}
-                    onChange={(e) =>
-                      setHoursPerDay(e.target.value)
-                    }
-                    placeholder="Study hours per day"
-                    className="w-full rounded-lg border border-slate-700 bg-slate-950 px-4 py-3 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
+                    onChange={(e) => setHoursPerDay(e.target.value)}
+                    placeholder="e.g. 3"
+                    className="w-full rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-white outline-none transition placeholder:text-slate-600 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10"
                   />
                 </div>
 
                 <div>
                   <label
                     htmlFor="study-level"
-                    className="mb-2 block text-sm text-slate-300"
+                    className="mb-2 block text-sm font-medium text-slate-300"
                   >
                     Current level
                   </label>
@@ -1422,10 +1761,8 @@ export default function Home() {
                   <select
                     id="study-level"
                     value={level}
-                    onChange={(e) =>
-                      setLevel(e.target.value)
-                    }
-                    className="w-full rounded-lg border border-slate-700 bg-slate-950 px-4 py-3 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
+                    onChange={(e) => setLevel(e.target.value)}
+                    className="w-full rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-white outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10"
                   >
                     <option>Beginner</option>
                     <option>Intermediate</option>
@@ -1436,7 +1773,7 @@ export default function Home() {
                 <div>
                   <label
                     htmlFor="ai-subjects"
-                    className="mb-2 block text-sm text-slate-300"
+                    className="mb-2 block text-sm font-medium text-slate-300"
                   >
                     Subjects
                   </label>
@@ -1444,17 +1781,15 @@ export default function Home() {
                   <input
                     id="ai-subjects"
                     value={aiSubjects}
-                    onChange={(e) =>
-                      setAiSubjects(e.target.value)
-                    }
+                    onChange={(e) => setAiSubjects(e.target.value)}
                     placeholder="HTML, CSS, JavaScript, React"
-                    className="w-full rounded-lg border border-slate-700 bg-slate-950 px-4 py-3 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
+                    className="w-full rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-white outline-none transition placeholder:text-slate-600 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10"
                   />
                 </div>
 
                 {aiError && (
                   <p
-                    className="rounded-lg bg-red-950 p-3 text-sm text-red-400"
+                    className="rounded-xl border border-red-900/50 bg-red-950/30 p-3 text-sm text-red-400"
                     role="alert"
                   >
                     {aiError}
@@ -1465,7 +1800,7 @@ export default function Home() {
                   type="submit"
                   disabled={aiLoading}
                   aria-busy={aiLoading}
-                  className="flex w-full items-center justify-center gap-3 rounded-lg bg-blue-600 py-3 font-medium transition hover:bg-blue-500 disabled:cursor-not-allowed disabled:opacity-60 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                  className="flex w-full items-center justify-center gap-3 rounded-xl bg-blue-600 py-3 font-semibold text-white transition hover:bg-blue-500 disabled:cursor-not-allowed disabled:opacity-60"
                 >
                   {aiLoading ? (
                     <>
@@ -1474,9 +1809,7 @@ export default function Home() {
                         aria-hidden="true"
                       />
 
-                      <span>
-                        Creating your study plan...
-                      </span>
+                      Creating your study plan...
                     </>
                   ) : (
                     "Generate AI Study Plan"
@@ -1485,32 +1818,28 @@ export default function Home() {
 
                 {aiPlan && (
                   <div
-                    className="mt-6 rounded-xl border border-blue-800 bg-slate-950 p-5"
+                    className="mt-6 rounded-2xl border border-blue-500/15 bg-slate-950/60 p-5"
                     aria-live="polite"
                   >
-                    <div className="flex items-start justify-between gap-4">
-                      <div>
-                        <div className="flex items-center gap-2">
-                          <span className="rounded-full bg-blue-600/20 px-2.5 py-1 text-xs font-medium text-blue-400">
-                            AI Generated
-                          </span>
+                    <div className="flex items-center gap-2">
+                      <span className="rounded-full bg-blue-500/10 px-2.5 py-1 text-xs font-medium text-blue-400">
+                        AI Generated
+                      </span>
 
-                          <span className="text-xs text-slate-500">
-                            StudyPilot
-                          </span>
-                        </div>
-
-                        <h3 className="mt-3 text-xl font-semibold">
-                          Your Personalized Study Plan
-                        </h3>
-
-                        <p className="mt-1 text-sm text-slate-400">
-                          A study plan created based on your goals, level and available time.
-                        </p>
-                      </div>
+                      <span className="text-xs text-slate-600">
+                        StudyPilot
+                      </span>
                     </div>
 
-                    <div className="mt-5 rounded-lg border border-slate-800 bg-slate-900 p-4">
+                    <h3 className="mt-4 text-xl font-bold text-white">
+                      Your Personalized Study Plan
+                    </h3>
+
+                    <p className="mt-1 text-sm text-slate-500">
+                      Generated from your goals, level and available time.
+                    </p>
+
+                    <div className="mt-5 rounded-2xl border border-slate-800 bg-slate-900 p-4">
                       <p className="whitespace-pre-line text-sm leading-7 text-slate-300">
                         {aiPlan}
                       </p>
@@ -1519,7 +1848,7 @@ export default function Home() {
                     {aiTasks.length > 0 && (
                       <div className="mt-6">
                         <div className="mb-3 flex items-center justify-between">
-                          <h4 className="font-semibold">
+                          <h4 className="font-semibold text-white">
                             Recommended Tasks
                           </h4>
 
@@ -1532,15 +1861,15 @@ export default function Home() {
                           {aiTasks.map((task, index) => (
                             <div
                               key={index}
-                              className="rounded-lg border border-slate-800 bg-slate-900 p-4"
+                              className="rounded-2xl border border-slate-800 bg-slate-900 p-4"
                             >
                               <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                                 <div className="min-w-0">
-                                  <h5 className="font-medium">
+                                  <h5 className="font-medium text-white">
                                     {task.title}
                                   </h5>
 
-                                  <div className="mt-1 flex flex-wrap gap-x-3 gap-y-1 text-xs text-slate-400">
+                                  <div className="mt-1 flex flex-wrap gap-x-3 gap-y-1 text-xs text-slate-500">
                                     <span>{task.subject}</span>
 
                                     <span>
@@ -1552,10 +1881,10 @@ export default function Home() {
                                 <span
                                   className={`w-fit rounded-full px-3 py-1 text-xs font-medium ${
                                     task.priority === "High"
-                                      ? "bg-red-950 text-red-400"
+                                      ? "bg-red-500/10 text-red-400"
                                       : task.priority === "Medium"
-                                        ? "bg-yellow-950 text-yellow-400"
-                                        : "bg-green-950 text-green-400"
+                                        ? "bg-yellow-500/10 text-yellow-400"
+                                        : "bg-emerald-500/10 text-emerald-400"
                                   }`}
                                 >
                                   {task.priority}
@@ -1568,7 +1897,7 @@ export default function Home() {
                         <button
                           type="button"
                           onClick={addAIPlanToTasks}
-                          className="mt-5 w-full rounded-lg bg-blue-600 py-3 font-medium transition hover:bg-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                          className="mt-5 w-full rounded-xl bg-blue-600 py-3 font-semibold text-white transition hover:bg-blue-500"
                         >
                           Add Plan to My Tasks
                         </button>
