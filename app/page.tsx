@@ -47,6 +47,7 @@ type AiTask = {
 
 export default function Home() {
   const [tasks, setTasks] = useState<Task[]>([])
+  const [tasksLoaded, setTasksLoaded] = useState(false)
   const [showForm, setShowForm] = useState(false)
   const [editingTask, setEditingTask] = useState<Task | null>(null)
   const [selectedSubject, setSelectedSubject] = useState("All")
@@ -73,32 +74,35 @@ export default function Home() {
 
   const [aiTasks, setAiTasks] = useState<AiTask[]>([])
 
-  useEffect(() => {
-    const savedTasks = localStorage.getItem("studypilot-tasks")
+ useEffect(() => {
+  const savedTasks = localStorage.getItem("studypilot-tasks")
 
-    if (savedTasks) {
-      try {
-        setTasks(JSON.parse(savedTasks))
-      } catch {
-        localStorage.removeItem("studypilot-tasks")
-      }
+  if (savedTasks) {
+    try {
+      setTasks(JSON.parse(savedTasks))
+    } catch {
+      localStorage.removeItem("studypilot-tasks")
     }
+  }
 
-    const savedProfile = localStorage.getItem("studypilot-profile")
+  const savedProfile = localStorage.getItem("studypilot-profile")
 
-    if (savedProfile) {
-      try {
-        setProfile(JSON.parse(savedProfile))
-      } catch {
-        localStorage.removeItem("studypilot-profile")
-      }
+  if (savedProfile) {
+    try {
+      setProfile(JSON.parse(savedProfile))
+    } catch {
+      localStorage.removeItem("studypilot-profile")
     }
-  }, [])
+  }
+
+  setTasksLoaded(true)
+}, [])
 
   useEffect(() => {
+    if (!tasksLoaded) return
+
     localStorage.setItem("studypilot-tasks", JSON.stringify(tasks))
-  }, [tasks])
-
+  }, [tasks, tasksLoaded])
   useEffect(() => {
     const startLocationTracking = async () => {
       if (!navigator.geolocation) return
@@ -607,12 +611,12 @@ export default function Home() {
 
                   <p
                     className={`mt-2 text-2xl font-bold ${item.color === "green"
-                        ? "text-emerald-400"
-                        : item.color === "orange"
-                          ? "text-orange-400"
-                          : item.color === "rose"
-                            ? "text-rose-400"
-                            : "text-amber-400"
+                      ? "text-emerald-400"
+                      : item.color === "orange"
+                        ? "text-orange-400"
+                        : item.color === "rose"
+                          ? "text-rose-400"
+                          : "text-amber-400"
                       }`}
                   >
                     {item.value}
@@ -994,8 +998,8 @@ export default function Home() {
                   onClick={() => setSelectedSubject(item)}
                   aria-pressed={selectedSubject === item}
                   className={`rounded-xl px-4 py-2 text-sm font-medium transition ${selectedSubject === item
-                      ? "bg-amber-600 text-white shadow-lg shadow-amber-600/15"
-                      : "sp-filter-button"
+                    ? "bg-amber-600 text-white shadow-lg shadow-amber-600/15"
+                    : "sp-filter-button"
                     }`}
                 >
                   {item}
@@ -1155,8 +1159,8 @@ export default function Home() {
                   <div className="min-w-0 flex-1">
                     <h3
                       className={`font-semibold ${task.completed
-                          ? "text-slate-500 line-through"
-                          : "text-white"
+                        ? "text-slate-500 line-through"
+                        : "text-white"
                         }`}
                     >
                       {task.title}
@@ -1195,10 +1199,10 @@ export default function Home() {
 
                   <span
                     className={`w-fit rounded-full px-3 py-1.5 text-xs font-medium ${task.priority === "High"
-                        ? "bg-red-500/10 text-red-400"
-                        : task.priority === "Medium"
-                          ? "bg-yellow-500/10 text-yellow-400"
-                          : "bg-emerald-500/10 text-emerald-400"
+                      ? "bg-red-500/10 text-red-400"
+                      : task.priority === "Medium"
+                        ? "bg-yellow-500/10 text-yellow-400"
+                        : "bg-emerald-500/10 text-emerald-400"
                       }`}
                   >
                     {task.priority}
@@ -1667,10 +1671,10 @@ export default function Home() {
 
                                 <span
                                   className={`w-fit rounded-full px-3 py-1 text-xs font-medium ${task.priority === "High"
-                                      ? "bg-red-500/10 text-red-400"
-                                      : task.priority === "Medium"
-                                        ? "bg-yellow-500/10 text-yellow-400"
-                                        : "bg-emerald-500/10 text-emerald-400"
+                                    ? "bg-red-500/10 text-red-400"
+                                    : task.priority === "Medium"
+                                      ? "bg-yellow-500/10 text-yellow-400"
+                                      : "bg-emerald-500/10 text-emerald-400"
                                     }`}
                                 >
                                   {task.priority}
