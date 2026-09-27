@@ -4,14 +4,20 @@ import dynamic from "next/dynamic"
 import { useEffect, useMemo, useState } from "react"
 
 import AIChat from "@/components/AIChat"
+import Navbar from "@/components/Navbar"
 
 const StudyScene = dynamic(
   () => import("@/components/StudyScene"),
   {
     ssr: false,
     loading: () => (
-      <div className="mt-8 flex h-[300px] items-center justify-center rounded-3xl border border-slate-800 bg-slate-900 text-sm text-slate-400 sm:h-[400px]">
-        Loading 3D Study Desk...
+      <div className="sp-panel mt-8 flex h-[300px] items-center justify-center rounded-3xl sm:h-[400px]">
+        <div className="flex flex-col items-center gap-3">
+          <div className="h-8 w-8 animate-spin rounded-full border-2 border-violet-500/20 border-t-violet-500" />
+          <span className="text-sm text-slate-400">
+            Loading 3D Study Desk...
+          </span>
+        </div>
       </div>
     ),
   }
@@ -30,6 +36,13 @@ type ProfileData = {
   username?: string
   email?: string
   bio?: string
+}
+
+type AiTask = {
+  title: string
+  subject: string
+  deadline: string
+  priority: string
 }
 
 export default function Home() {
@@ -56,17 +69,9 @@ export default function Home() {
 
   const [searchQuery, setSearchQuery] = useState("")
   const [taskStatus, setTaskStatus] = useState("All")
-  const [showProfileMenu, setShowProfileMenu] = useState(false)
   const [profile, setProfile] = useState<ProfileData>({})
 
-  const [aiTasks, setAiTasks] = useState<
-    {
-      title: string
-      subject: string
-      deadline: string
-      priority: string
-    }[]
-  >([])
+  const [aiTasks, setAiTasks] = useState<AiTask[]>([])
 
   useEffect(() => {
     const savedTasks = localStorage.getItem("studypilot-tasks")
@@ -169,14 +174,6 @@ export default function Home() {
   }, [])
 
   const displayName = profile.username?.trim() || "Student"
-
-  const initials = displayName
-    .split(" ")
-    .filter(Boolean)
-    .map((part) => part[0])
-    .join("")
-    .slice(0, 2)
-    .toUpperCase()
 
   const resetForm = () => {
     setTitle("")
@@ -501,234 +498,22 @@ export default function Home() {
   return (
     <main
       id="main-content"
-      className="min-h-screen bg-slate-950 text-white"
+      className="sp-page min-h-screen"
     >
-      {/* NAVBAR */}
-      <nav
-        className="sticky top-0 z-50 border-b border-slate-800/80 bg-slate-950/80 backdrop-blur-xl"
-        aria-label="Main navigation"
-      >
-        <div className="mx-auto flex h-[76px] max-w-7xl items-center justify-between px-4 sm:px-6">
-          <div className="flex items-center gap-5 lg:gap-10">
-            <a
-              href="#page-title"
-              className="group flex items-center gap-2.5"
-            >
-              <span className="relative flex h-9 w-9 items-center justify-center overflow-hidden rounded-xl bg-blue-600 shadow-lg shadow-blue-600/20">
-                <span className="absolute inset-0 bg-gradient-to-br from-blue-400 via-blue-600 to-indigo-700" />
-
-                <svg
-                  className="relative z-10 h-5 w-5 text-white"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <path d="M4 19V5" />
-                  <path d="M4 5c5-2 10 2 16 0v14c-6 2-11-2-16 0" />
-                  <path d="M8 8h8" />
-                  <path d="M8 12h6" />
-                </svg>
-              </span>
-
-              <span className="text-xl font-bold tracking-[-0.04em] text-white">
-                Study<span className="text-blue-400">Pilot</span>
-              </span>
-            </a>
-
-            <div className="hidden items-center gap-1 rounded-2xl border border-slate-800/70 bg-slate-900/40 p-1 md:flex">
-              <a
-                href="#overview-heading"
-                className="relative rounded-xl bg-blue-600/10 px-4 py-2 text-sm font-medium text-blue-400 transition hover:bg-blue-600/15"
-              >
-                Dashboard
-
-                <span className="absolute bottom-0 left-1/2 h-0.5 w-5 -translate-x-1/2 rounded-full bg-blue-500" />
-              </a>
-
-              <a
-                href="#ai-planner-heading"
-                className="rounded-xl px-4 py-2 text-sm font-medium text-slate-400 transition hover:bg-slate-800/70 hover:text-white"
-              >
-                AI Planner
-              </a>
-
-              <a
-                href="#study-scene-heading"
-                className="rounded-xl px-4 py-2 text-sm font-medium text-slate-400 transition hover:bg-slate-800/70 hover:text-white"
-              >
-                Study Desk
-              </a>
-            </div>
-          </div>
-
-          <div className="relative flex items-center gap-3">
-            <div className="hidden text-right sm:block">
-              <p className="text-sm font-semibold text-white">
-                {displayName}
-              </p>
-
-              <p className="text-xs text-slate-500">
-                Study smarter
-              </p>
-            </div>
-
-            <button
-              type="button"
-              onClick={() =>
-                setShowProfileMenu((previous) => !previous)
-              }
-              className="group relative flex h-11 w-11 items-center justify-center rounded-full border border-blue-400/30 bg-gradient-to-br from-blue-500 to-indigo-600 text-sm font-bold text-white shadow-lg shadow-blue-600/15 transition hover:scale-105 hover:border-blue-300/60 hover:shadow-blue-500/30"
-              aria-label="Open profile menu"
-              aria-expanded={showProfileMenu}
-              title="Profile"
-            >
-              <span>{initials || "S"}</span>
-
-              <span className="absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full border-2 border-slate-950 bg-emerald-400" />
-            </button>
-
-            {showProfileMenu && (
-              <div className="absolute right-0 top-14 z-[100] w-[310px] overflow-hidden rounded-3xl border border-slate-700/70 bg-slate-900/95 shadow-2xl shadow-black/30 backdrop-blur-2xl">
-                <div className="relative overflow-hidden border-b border-slate-800 p-5">
-                  <div className="absolute -right-10 -top-10 h-32 w-32 rounded-full bg-blue-600/10 blur-2xl" />
-
-                  <div className="relative flex items-center gap-4">
-                    <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 text-lg font-bold text-white shadow-lg shadow-blue-600/20">
-                      {initials || "S"}
-                    </div>
-
-                    <div className="min-w-0">
-                      <p className="truncate font-semibold text-white">
-                        {displayName}
-                      </p>
-
-                      <p className="mt-0.5 truncate text-sm text-slate-500">
-                        {profile.email || "Study smarter"}
-                      </p>
-
-                      <div className="mt-2 inline-flex items-center gap-1.5 rounded-full bg-emerald-500/10 px-2 py-1 text-[11px] font-medium text-emerald-400">
-                        <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
-                        Active learner
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="p-2">
-                  <a
-                    href="/profile"
-                    onClick={() => setShowProfileMenu(false)}
-                    className="group flex items-center gap-3 rounded-2xl px-3 py-3.5 text-sm text-slate-300 transition hover:bg-slate-800/80 hover:text-white"
-                  >
-                    <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-500/10 text-blue-400 transition group-hover:bg-blue-500/15">
-                      <svg
-                        width="19"
-                        height="19"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      >
-                        <path d="M20 21a8 8 0 0 0-16 0" />
-                        <circle cx="12" cy="7" r="4" />
-                      </svg>
-                    </span>
-
-                    <span className="flex-1">
-                      <span className="block font-medium">
-                        View Profile
-                      </span>
-
-                      <span className="mt-0.5 block text-xs text-slate-500">
-                        Profile & personal information
-                      </span>
-                    </span>
-
-                    <svg
-                      width="16"
-                      height="16"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      className="text-slate-600 transition group-hover:translate-x-0.5 group-hover:text-slate-400"
-                    >
-                      <path d="m9 18 6-6-6-6" />
-                    </svg>
-                  </a>
-
-                  <a
-                    href="/profile#app-settings"
-                    onClick={() => setShowProfileMenu(false)}
-                    className="group flex items-center gap-3 rounded-2xl px-3 py-3.5 text-sm text-slate-300 transition hover:bg-slate-800/80 hover:text-white"
-                  >
-                    <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-500/10 text-indigo-400">
-                      <svg
-                        width="19"
-                        height="19"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      >
-                        <circle cx="12" cy="12" r="3" />
-                        <path d="M19.4 15a1.7 1.7 0 0 0 .34 1.88l.06.06-1.4 1.4-.06-.06a1.7 1.7 0 0 0-1.88-.34 1.7 1.7 0 0 0-1.03 1.56V20h-2v-.5a1.7 1.7 0 0 0-1.03-1.56 1.7 1.7 0 0 0-1.88.34l-.06.06-1.4-1.4.06-.06A1.7 1.7 0 0 0 8.6 15a1.7 1.7 0 0 0-1.56-1.03H6v-2h1.04A1.7 1.7 0 0 0 8.6 10a1.7 1.7 0 0 0-.34-1.88L8.2 8.06l1.4-1.4.06.06a1.7 1.7 0 0 0 1.88.34A1.7 1.7 0 0 0 12.57 5.5V5h2v.5A1.7 1.7 0 0 0 15.6 7.06a1.7 1.7 0 0 0 1.88-.34l.06-.06 1.4 1.4-.06.06A1.7 1.7 0 0 0 18.6 10a1.7 1.7 0 0 0 1.56 1.03H21v2h-.84A1.7 1.7 0 0 0 19.4 15Z" />
-                      </svg>
-                    </span>
-
-                    <span className="flex-1">
-                      <span className="block font-medium">
-                        Settings
-                      </span>
-
-                      <span className="mt-0.5 block text-xs text-slate-500">
-                        Appearance & preferences
-                      </span>
-                    </span>
-
-                    <svg
-                      width="16"
-                      height="16"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      className="text-slate-600"
-                    >
-                      <path d="m9 18 6-6-6-6" />
-                    </svg>
-                  </a>
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
-      </nav>
+      <Navbar />
 
       <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 sm:py-10">
-        {/* HERO */}
         <header
-          className="relative mb-10 overflow-hidden rounded-[2rem] border border-blue-500/10 bg-gradient-to-br from-blue-600/[0.12] via-indigo-500/[0.06] to-transparent p-6 sm:p-8 lg:p-10"
+          className="sp-hero relative mb-10 overflow-hidden rounded-[2rem] p-6 sm:p-8 lg:p-10"
           aria-labelledby="page-title"
         >
-          <div className="pointer-events-none absolute -right-24 -top-28 h-72 w-72 rounded-full bg-blue-500/10 blur-3xl" />
-          <div className="pointer-events-none absolute -bottom-32 left-1/3 h-64 w-64 rounded-full bg-indigo-500/[0.08] blur-3xl" />
+          <div className="pointer-events-none absolute -right-24 -top-28 h-72 w-72 rounded-full bg-violet-500/10 blur-3xl" />
+          <div className="pointer-events-none absolute -bottom-32 left-1/3 h-64 w-64 rounded-full bg-teal-500/[0.08] blur-3xl" />
 
           <div className="relative flex flex-col gap-8 lg:flex-row lg:items-end lg:justify-between">
             <div className="max-w-2xl">
-              <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-blue-400/15 bg-blue-500/[0.07] px-3 py-1.5 text-xs font-medium text-blue-400">
-                <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-blue-400" />
+              <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-violet-400/20 bg-violet-500/[0.08] px-3 py-1.5 text-xs font-medium text-violet-400">
+                <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-violet-400" />
                 Personal study dashboard
               </div>
 
@@ -737,7 +522,7 @@ export default function Home() {
                 className="text-4xl font-bold tracking-[-0.045em] text-white sm:text-5xl"
               >
                 {greeting},{" "}
-                <span className="bg-gradient-to-r from-blue-400 via-indigo-400 to-violet-400 bg-clip-text text-transparent">
+                <span className="bg-gradient-to-r from-violet-400 via-fuchsia-400 to-teal-400 bg-clip-text text-transparent">
                   {displayName}
                 </span>
                 .
@@ -755,7 +540,7 @@ export default function Home() {
                     setEditingTask(null)
                     setShowForm(true)
                   }}
-                  className="group inline-flex items-center gap-2 rounded-xl bg-blue-600 px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-blue-600/20 transition hover:-translate-y-0.5 hover:bg-blue-500 hover:shadow-blue-500/30"
+                  className="group inline-flex items-center gap-2 rounded-xl bg-violet-600 px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-violet-600/20 transition hover:-translate-y-0.5 hover:bg-violet-500 hover:shadow-violet-500/30"
                 >
                   <span className="text-lg leading-none transition group-hover:rotate-90">
                     +
@@ -769,7 +554,7 @@ export default function Home() {
                     setShowAIForm(true)
                     setAiError("")
                   }}
-                  className="inline-flex items-center gap-2 rounded-xl border border-slate-700/80 bg-slate-900/60 px-5 py-3 text-sm font-semibold text-slate-200 backdrop-blur transition hover:-translate-y-0.5 hover:border-blue-500/40 hover:bg-slate-800/80"
+                  className="sp-secondary-button inline-flex items-center gap-2 rounded-xl px-5 py-3 text-sm font-semibold backdrop-blur transition"
                 >
                   <svg
                     width="17"
@@ -790,45 +575,62 @@ export default function Home() {
             </div>
 
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 lg:w-[430px]">
-              <div className="rounded-2xl border border-white/[0.06] bg-white/[0.035] p-4 backdrop-blur">
-                <p className="text-xs text-slate-500">Tasks</p>
-                <p className="mt-2 text-2xl font-bold text-white">
-                  {tasks.length}
-                </p>
-              </div>
+              {[
+                {
+                  label: "Tasks",
+                  value: tasks.length,
+                  color: "violet",
+                },
+                {
+                  label: "Done",
+                  value: completedTasks,
+                  color: "green",
+                },
+                {
+                  label: "Upcoming",
+                  value: upcomingTasks.length,
+                  color: "amber",
+                },
+                {
+                  label: "Progress",
+                  value: `${progress}%`,
+                  color: "fuchsia",
+                },
+              ].map((item) => (
+                <div
+                  key={item.label}
+                  className="sp-hero-stat rounded-2xl p-4 backdrop-blur"
+                >
+                  <p className="text-xs text-slate-500">
+                    {item.label}
+                  </p>
 
-              <div className="rounded-2xl border border-white/[0.06] bg-white/[0.035] p-4 backdrop-blur">
-                <p className="text-xs text-slate-500">Done</p>
-                <p className="mt-2 text-2xl font-bold text-emerald-400">
-                  {completedTasks}
-                </p>
-              </div>
-
-              <div className="rounded-2xl border border-white/[0.06] bg-white/[0.035] p-4 backdrop-blur">
-                <p className="text-xs text-slate-500">Upcoming</p>
-                <p className="mt-2 text-2xl font-bold text-blue-400">
-                  {upcomingTasks.length}
-                </p>
-              </div>
-
-              <div className="rounded-2xl border border-white/[0.06] bg-white/[0.035] p-4 backdrop-blur">
-                <p className="text-xs text-slate-500">Progress</p>
-                <p className="mt-2 text-2xl font-bold text-violet-400">
-                  {progress}%
-                </p>
-              </div>
+                  <p
+                    className={`mt-2 text-2xl font-bold ${
+                      item.color === "green"
+                        ? "text-emerald-400"
+                        : item.color === "amber"
+                          ? "text-amber-400"
+                          : item.color === "fuchsia"
+                            ? "text-fuchsia-400"
+                            : "text-violet-400"
+                    }`}
+                  >
+                    {item.value}
+                  </p>
+                </div>
+              ))}
             </div>
           </div>
         </header>
 
-        {/* OVERVIEW */}
         <section
-          className="mb-8"
+          className="mb-10"
           aria-labelledby="overview-heading"
         >
           <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-end">
             <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-blue-400">
+              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-violet-400">
                 Overview
               </p>
 
@@ -844,145 +646,139 @@ export default function Home() {
               </p>
             </div>
           </div>
-        </section>
 
-        {/* STAT CARDS */}
-        <section
-          className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4"
-          aria-label="Study statistics"
-        >
-          {[
-            {
-              label: "Total Tasks",
-              value: tasks.length,
-              description: "All study tasks",
-              icon: "layers",
-              accent: "blue",
-            },
-            {
-              label: "Completed",
-              value: completedTasks,
-              description: `${progress}% completion rate`,
-              icon: "check",
-              accent: "green",
-            },
-            {
-              label: "Upcoming",
-              value: upcomingTasks.length,
-              description: "Upcoming deadlines",
-              icon: "calendar",
-              accent: "violet",
-            },
-            {
-              label: "High Priority",
-              value: highPriorityTasks,
-              description: "Need your attention",
-              icon: "bolt",
-              accent: "orange",
-            },
-          ].map((stat) => (
-            <div
-              key={stat.label}
-              className="group relative overflow-hidden rounded-2xl border border-slate-800/80 bg-slate-900/65 p-5 backdrop-blur-sm transition duration-300 hover:-translate-y-1 hover:border-blue-500/20 hover:shadow-xl hover:shadow-blue-950/20"
-            >
-              <div className="flex items-start justify-between">
-                <div>
-                  <p className="text-sm font-medium text-slate-400">
-                    {stat.label}
-                  </p>
+          <div
+            className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4"
+            aria-label="Study statistics"
+          >
+            {[
+              {
+                label: "Total Tasks",
+                value: tasks.length,
+                description: "All study tasks",
+                icon: "layers",
+                accent: "violet",
+              },
+              {
+                label: "Completed",
+                value: completedTasks,
+                description: `${progress}% completion rate`,
+                icon: "check",
+                accent: "teal",
+              },
+              {
+                label: "Upcoming",
+                value: upcomingTasks.length,
+                description: "Upcoming deadlines",
+                icon: "calendar",
+                accent: "amber",
+              },
+              {
+                label: "High Priority",
+                value: highPriorityTasks,
+                description: "Need your attention",
+                icon: "bolt",
+                accent: "rose",
+              },
+            ].map((stat) => (
+              <div
+                key={stat.label}
+                data-accent={stat.accent}
+                className="sp-stat-card group relative overflow-hidden rounded-2xl p-5"
+              >
+                <div className="flex items-start justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-slate-400">
+                      {stat.label}
+                    </p>
 
-                  <p className="mt-3 text-3xl font-bold tracking-tight text-white">
-                    {stat.value}
-                  </p>
+                    <p className="mt-3 text-3xl font-bold tracking-tight text-white">
+                      {stat.value}
+                    </p>
+                  </div>
+
+                  <span className="sp-stat-icon flex h-10 w-10 items-center justify-center rounded-xl">
+                    {stat.icon === "layers" && (
+                      <svg
+                        width="19"
+                        height="19"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                      >
+                        <path d="m12 3 9 5-9 5-9-5 9-5Z" />
+                        <path d="m3 12 9 5 9-5" />
+                        <path d="m3 16 9 5 9-5" />
+                      </svg>
+                    )}
+
+                    {stat.icon === "check" && (
+                      <svg
+                        width="19"
+                        height="19"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                      >
+                        <path d="m5 12 4 4L19 6" />
+                      </svg>
+                    )}
+
+                    {stat.icon === "calendar" && (
+                      <svg
+                        width="19"
+                        height="19"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                      >
+                        <rect
+                          x="3"
+                          y="4"
+                          width="18"
+                          height="17"
+                          rx="2"
+                        />
+                        <path d="M16 2v4M8 2v4M3 10h18" />
+                      </svg>
+                    )}
+
+                    {stat.icon === "bolt" && (
+                      <svg
+                        width="19"
+                        height="19"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                      >
+                        <path d="m13 2-9 12h7l-1 8 9-12h-7l1-8Z" />
+                      </svg>
+                    )}
+                  </span>
                 </div>
 
-                <span
-                  className={`flex h-10 w-10 items-center justify-center rounded-xl ${
-                    stat.accent === "blue"
-                      ? "bg-blue-500/10 text-blue-400"
-                      : stat.accent === "green"
-                        ? "bg-emerald-500/10 text-emerald-400"
-                        : stat.accent === "violet"
-                          ? "bg-violet-500/10 text-violet-400"
-                          : "bg-orange-500/10 text-orange-400"
-                  }`}
-                >
-                  {stat.icon === "layers" && (
-                    <svg
-                      width="19"
-                      height="19"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                    >
-                      <path d="m12 3 9 5-9 5-9-5 9-5Z" />
-                      <path d="m3 12 9 5 9-5" />
-                      <path d="m3 16 9 5 9-5" />
-                    </svg>
-                  )}
+                <p className="mt-3 text-xs text-slate-500">
+                  {stat.description}
+                </p>
 
-                  {stat.icon === "check" && (
-                    <svg
-                      width="19"
-                      height="19"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                    >
-                      <path d="m5 12 4 4L19 6" />
-                    </svg>
-                  )}
-
-                  {stat.icon === "calendar" && (
-                    <svg
-                      width="19"
-                      height="19"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                    >
-                      <rect x="3" y="4" width="18" height="17" rx="2" />
-                      <path d="M16 2v4M8 2v4M3 10h18" />
-                    </svg>
-                  )}
-
-                  {stat.icon === "bolt" && (
-                    <svg
-                      width="19"
-                      height="19"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                    >
-                      <path d="m13 2-9 12h7l-1 8 9-12h-7l1-8Z" />
-                    </svg>
-                  )}
-                </span>
+                <div className="sp-stat-glow absolute -bottom-12 -right-12 h-24 w-24 rounded-full blur-2xl transition" />
               </div>
-
-              <p className="mt-3 text-xs text-slate-500">
-                {stat.description}
-              </p>
-
-              <div className="absolute -bottom-12 -right-12 h-24 w-24 rounded-full bg-blue-500/[0.04] blur-2xl transition group-hover:bg-blue-500/[0.08]" />
-            </div>
-          ))}
+            ))}
+          </div>
         </section>
 
-        {/* OVERVIEW DETAILS */}
         <section
-          className="mt-6 grid gap-6 lg:grid-cols-[1.15fr_0.85fr]"
+          className="mt-10 grid gap-6 lg:grid-cols-[1.15fr_0.85fr]"
           aria-label="Study overview details"
         >
-          {/* DEADLINES */}
-          <div className="rounded-3xl border border-slate-800/80 bg-slate-900/60 p-6 backdrop-blur-sm">
+          <div className="sp-panel rounded-3xl p-6">
             <div className="flex items-start justify-between gap-4">
               <div>
-                <p className="text-xs font-semibold uppercase tracking-[0.16em] text-blue-400">
+                <p className="text-xs font-semibold uppercase tracking-[0.16em] text-teal-400">
                   Schedule
                 </p>
 
@@ -995,14 +791,14 @@ export default function Home() {
                 </p>
               </div>
 
-              <span className="rounded-full border border-blue-500/15 bg-blue-500/10 px-3 py-1 text-xs font-semibold text-blue-400">
+              <span className="rounded-full border border-teal-500/20 bg-teal-500/10 px-3 py-1 text-xs font-semibold text-teal-400">
                 {upcomingTasks.length}
               </span>
             </div>
 
             {upcomingTasks.length === 0 ? (
               <div className="mt-6 rounded-2xl border border-dashed border-slate-700/80 bg-slate-950/30 p-8 text-center">
-                <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-blue-500/10 text-blue-400">
+                <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-violet-500/10 text-violet-400">
                   <svg
                     width="21"
                     height="21"
@@ -1029,10 +825,10 @@ export default function Home() {
                 {upcomingTasks.map((task) => (
                   <div
                     key={task.id}
-                    className="group flex items-center justify-between gap-4 rounded-2xl border border-slate-800/70 bg-slate-950/45 p-4 transition hover:border-blue-500/20 hover:bg-slate-950/70"
+                    className="sp-task-row group flex items-center justify-between gap-4 rounded-2xl p-4"
                   >
                     <div className="flex min-w-0 items-center gap-3">
-                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-blue-500/10 text-xs font-bold text-blue-400">
+                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-violet-500/10 text-xs font-bold text-violet-400">
                         {task.subject.slice(0, 2).toUpperCase()}
                       </div>
 
@@ -1074,9 +870,8 @@ export default function Home() {
             )}
           </div>
 
-          {/* PROGRESS */}
-          <div className="rounded-3xl border border-slate-800/80 bg-slate-900/60 p-6 backdrop-blur-sm">
-            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-violet-400">
+          <div className="sp-panel rounded-3xl p-6">
+            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-fuchsia-400">
               Performance
             </p>
 
@@ -1108,14 +903,14 @@ export default function Home() {
                 aria-label="Overall study progress"
               >
                 <div
-                  className="h-full rounded-full bg-gradient-to-r from-blue-500 via-indigo-500 to-violet-500 transition-all duration-700"
+                  className="h-full rounded-full bg-gradient-to-r from-violet-500 via-fuchsia-500 to-teal-500 transition-all duration-700"
                   style={{ width: `${progress}%` }}
                 />
               </div>
             </div>
 
             <div className="mt-8 grid grid-cols-2 gap-3">
-              <div className="rounded-2xl border border-slate-800/70 bg-slate-950/40 p-4">
+              <div className="sp-mini-card rounded-2xl p-4">
                 <p className="text-xs text-slate-500">
                   Completed
                 </p>
@@ -1125,12 +920,12 @@ export default function Home() {
                 </p>
               </div>
 
-              <div className="rounded-2xl border border-slate-800/70 bg-slate-950/40 p-4">
+              <div className="sp-mini-card rounded-2xl p-4">
                 <p className="text-xs text-slate-500">
                   Remaining
                 </p>
 
-                <p className="mt-2 text-2xl font-bold text-blue-400">
+                <p className="mt-2 text-2xl font-bold text-violet-400">
                   {tasks.length - completedTasks}
                 </p>
               </div>
@@ -1154,15 +949,14 @@ export default function Home() {
           </div>
         </section>
 
-        {/* TASKS */}
         <section
-          className="mt-6 rounded-3xl border border-slate-800/80 bg-slate-900/60 p-5 backdrop-blur-sm sm:p-6"
+          className="sp-panel mt-10 rounded-3xl p-5 sm:p-6"
           aria-labelledby="study-plan-heading"
         >
           <div className="flex flex-col gap-5">
             <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
               <div>
-                <p className="text-xs font-semibold uppercase tracking-[0.16em] text-blue-400">
+                <p className="text-xs font-semibold uppercase tracking-[0.16em] text-violet-400">
                   Workspace
                 </p>
 
@@ -1184,7 +978,7 @@ export default function Home() {
                   setEditingTask(null)
                   setShowForm(true)
                 }}
-                className="rounded-xl bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-blue-500"
+                className="rounded-xl bg-violet-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-violet-500"
               >
                 + Add task
               </button>
@@ -1203,8 +997,8 @@ export default function Home() {
                   aria-pressed={selectedSubject === item}
                   className={`rounded-xl px-4 py-2 text-sm font-medium transition ${
                     selectedSubject === item
-                      ? "bg-blue-600 text-white shadow-lg shadow-blue-600/15"
-                      : "border border-slate-800 bg-slate-950/40 text-slate-400 hover:border-slate-700 hover:bg-slate-800/70 hover:text-white"
+                      ? "bg-violet-600 text-white shadow-lg shadow-violet-600/15"
+                      : "sp-filter-button"
                   }`}
                 >
                   {item}
@@ -1242,7 +1036,7 @@ export default function Home() {
                     setSearchQuery(e.target.value)
                   }
                   placeholder="Search tasks or subjects..."
-                  className="w-full rounded-xl border border-slate-800 bg-slate-950/50 py-3 pl-11 pr-4 text-sm text-white outline-none transition placeholder:text-slate-600 focus:border-blue-500/50 focus:ring-4 focus:ring-blue-500/10"
+                  className="sp-input w-full rounded-xl py-3 pl-11 pr-4 text-sm outline-none transition"
                 />
               </div>
 
@@ -1258,11 +1052,11 @@ export default function Home() {
                       type="button"
                       onClick={() => setTaskStatus(status)}
                       aria-pressed={taskStatus === status}
-                      className={`rounded-xl px-4 py-2 text-sm font-medium transition ${
+                      className={
                         taskStatus === status
-                          ? "bg-slate-700 text-white"
-                          : "border border-slate-800 bg-slate-950/30 text-slate-500 hover:bg-slate-800/70 hover:text-slate-300"
-                      }`}
+                          ? "rounded-xl bg-violet-600 px-4 py-2 text-sm font-medium text-white shadow-lg shadow-violet-600/15"
+                          : "sp-filter-button rounded-xl px-4 py-2 text-sm font-medium"
+                      }
                     >
                       {status}
                     </button>
@@ -1273,8 +1067,8 @@ export default function Home() {
           </div>
 
           {filteredTasks.length === 0 ? (
-            <div className="mt-6 rounded-2xl border border-dashed border-slate-800 bg-slate-950/30 px-6 py-14 text-center">
-              <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-blue-500/10 text-blue-400">
+            <div className="sp-empty-state mt-6 rounded-2xl px-6 py-14 text-center">
+              <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-violet-500/10 text-violet-400">
                 {tasks.length === 0 ? (
                   <svg
                     width="24"
@@ -1322,7 +1116,7 @@ export default function Home() {
                     setEditingTask(null)
                     setShowForm(true)
                   }}
-                  className="mt-5 rounded-xl bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-blue-500"
+                  className="mt-5 rounded-xl bg-violet-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-violet-500"
                 >
                   Create your first task
                 </button>
@@ -1336,18 +1130,21 @@ export default function Home() {
                     setTaskStatus("All")
                     setSelectedSubject("All")
                   }}
-                  className="mt-5 rounded-xl border border-slate-700 px-5 py-2.5 text-sm font-medium text-slate-300 transition hover:bg-slate-800 hover:text-white"
+                  className="sp-outline-button mt-5 rounded-xl px-5 py-2.5 text-sm font-medium"
                 >
                   Clear filters
                 </button>
               )}
             </div>
           ) : (
-            <div className="mt-6 space-y-3">
+            <div
+              className="mt-6 space-y-3"
+              aria-label="Study tasks"
+            >
               {filteredTasks.map((task) => (
                 <div
                   key={task.id}
-                  className="group flex flex-col gap-4 rounded-2xl border border-slate-800/70 bg-slate-950/35 p-4 transition hover:border-blue-500/20 hover:bg-slate-950/60 sm:flex-row sm:items-center"
+                  className="sp-task-row group flex flex-col gap-4 rounded-2xl p-4 sm:flex-row sm:items-center"
                 >
                   <input
                     id={`task-${task.id}`}
@@ -1355,7 +1152,7 @@ export default function Home() {
                     checked={task.completed}
                     onChange={() => toggleTask(task.id)}
                     aria-label={`Mark ${task.title} as completed`}
-                    className="h-5 w-5 cursor-pointer accent-blue-600"
+                    className="h-5 w-5 cursor-pointer accent-violet-600"
                   />
 
                   <div className="min-w-0 flex-1">
@@ -1370,7 +1167,7 @@ export default function Home() {
                     </h3>
 
                     <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs">
-                      <span className="text-blue-400">
+                      <span className="text-violet-400">
                         {task.subject}
                       </span>
 
@@ -1416,7 +1213,7 @@ export default function Home() {
                     <button
                       type="button"
                       onClick={() => startEdit(task)}
-                      className="rounded-xl border border-slate-800 px-3 py-2 text-xs font-medium text-slate-400 transition hover:border-slate-700 hover:bg-slate-800 hover:text-white"
+                      className="sp-outline-button rounded-xl px-3 py-2 text-xs font-medium"
                     >
                       Edit
                     </button>
@@ -1435,16 +1232,15 @@ export default function Home() {
           )}
         </section>
 
-        {/* AI PLANNER */}
         <section
-          className="relative mt-6 overflow-hidden rounded-3xl border border-blue-500/15 bg-gradient-to-br from-blue-600/[0.12] via-indigo-600/[0.08] to-violet-600/[0.06] p-6 sm:p-8"
+          className="sp-ai-planner relative mt-10 overflow-hidden rounded-3xl p-6 sm:p-8"
           aria-labelledby="ai-planner-heading"
         >
-          <div className="pointer-events-none absolute -right-20 -top-20 h-56 w-56 rounded-full bg-blue-500/10 blur-3xl" />
+          <div className="pointer-events-none absolute -right-20 -top-20 h-56 w-56 rounded-full bg-teal-500/10 blur-3xl" />
 
           <div className="relative flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
             <div className="max-w-2xl">
-              <div className="mb-3 inline-flex items-center gap-2 rounded-full bg-blue-500/10 px-3 py-1 text-xs font-medium text-blue-400">
+              <div className="mb-3 inline-flex items-center gap-2 rounded-full bg-teal-500/10 px-3 py-1 text-xs font-medium text-teal-400">
                 <svg
                   width="14"
                   height="14"
@@ -1477,20 +1273,19 @@ export default function Home() {
                 setShowAIForm(true)
                 setAiError("")
               }}
-              className="shrink-0 rounded-xl bg-white px-5 py-3 text-sm font-semibold text-slate-900 shadow-lg transition hover:-translate-y-0.5 hover:bg-slate-100 hover:shadow-xl"
+              className="sp-ai-button shrink-0 rounded-xl px-5 py-3 text-sm font-semibold shadow-lg transition"
             >
               Generate Plan
             </button>
           </div>
         </section>
 
-        {/* 3D STUDY DESK */}
         <section
-          className="mt-6"
+          className="sp-study-desk mt-10"
           aria-labelledby="study-scene-heading"
         >
           <div className="mb-4">
-            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-indigo-400">
+            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-amber-400">
               Focus space
             </p>
 
@@ -1507,9 +1302,8 @@ export default function Home() {
           </div>
         </section>
 
-        {/* AI CHAT */}
         <section
-          className="mt-6"
+          className="sp-chat mt-10"
           aria-labelledby="ai-chat-heading"
         >
           <h2
@@ -1522,18 +1316,17 @@ export default function Home() {
           <AIChat />
         </section>
 
-        {/* TASK MODAL */}
         {showForm && (
           <div
-            className="fixed inset-0 z-[200] flex items-center justify-center bg-slate-950/75 px-4 backdrop-blur-sm"
+            className="sp-modal-backdrop fixed inset-0 z-[200] flex items-center justify-center px-4"
             role="dialog"
             aria-modal="true"
             aria-labelledby="task-dialog-title"
           >
-            <div className="w-full max-w-md rounded-3xl border border-slate-700/70 bg-slate-900 p-6 shadow-2xl shadow-black/40">
+            <div className="sp-modal w-full max-w-md rounded-3xl p-6">
               <div className="mb-6 flex items-center justify-between">
                 <div>
-                  <p className="text-xs font-semibold uppercase tracking-[0.16em] text-blue-400">
+                  <p className="text-xs font-semibold uppercase tracking-[0.16em] text-violet-400">
                     Workspace
                   </p>
 
@@ -1551,7 +1344,7 @@ export default function Home() {
                   type="button"
                   onClick={resetForm}
                   aria-label="Close task dialog"
-                  className="rounded-xl p-2 text-slate-500 transition hover:bg-slate-800 hover:text-white"
+                  className="sp-close-button rounded-xl p-2"
                 >
                   ✕
                 </button>
@@ -1582,7 +1375,7 @@ export default function Home() {
                     value={title}
                     onChange={(e) => setTitle(e.target.value)}
                     placeholder="e.g. Study React Hooks"
-                    className="w-full rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-white outline-none transition placeholder:text-slate-600 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10"
+                    className="sp-input w-full rounded-xl px-4 py-3 outline-none"
                   />
                 </div>
 
@@ -1599,7 +1392,7 @@ export default function Home() {
                     value={subject}
                     onChange={(e) => setSubject(e.target.value)}
                     placeholder="e.g. Web Development"
-                    className="w-full rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-white outline-none transition placeholder:text-slate-600 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10"
+                    className="sp-input w-full rounded-xl px-4 py-3 outline-none"
                   />
                 </div>
 
@@ -1616,7 +1409,7 @@ export default function Home() {
                     type="date"
                     value={deadline}
                     onChange={(e) => setDeadline(e.target.value)}
-                    className="w-full rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-white outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10"
+                    className="sp-input w-full rounded-xl px-4 py-3 outline-none"
                   />
                 </div>
 
@@ -1632,7 +1425,7 @@ export default function Home() {
                     id="task-priority"
                     value={priority}
                     onChange={(e) => setPriority(e.target.value)}
-                    className="w-full rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-white outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10"
+                    className="sp-input w-full rounded-xl px-4 py-3 outline-none"
                   >
                     <option>Low</option>
                     <option>Medium</option>
@@ -1642,7 +1435,7 @@ export default function Home() {
 
                 <button
                   type="submit"
-                  className="w-full rounded-xl bg-blue-600 py-3 font-semibold text-white transition hover:bg-blue-500"
+                  className="sp-primary-button w-full rounded-xl py-3 font-semibold"
                 >
                   {editingTask ? "Save Changes" : "Add Task"}
                 </button>
@@ -1651,19 +1444,18 @@ export default function Home() {
           </div>
         )}
 
-        {/* AI MODAL */}
         {showAIForm && (
           <div
-            className="fixed inset-0 z-[200] flex items-center justify-center bg-slate-950/75 px-4 py-6 backdrop-blur-sm"
+            className="sp-modal-backdrop fixed inset-0 z-[200] flex items-center justify-center px-4 py-6"
             role="dialog"
             aria-modal="true"
             aria-labelledby="ai-dialog-title"
           >
-            <div className="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-3xl border border-slate-700/70 bg-slate-900 p-6 shadow-2xl shadow-black/40">
+            <div className="sp-modal max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-3xl p-6">
               <div className="mb-6 flex items-start justify-between gap-4">
                 <div>
-                  <div className="mb-2 inline-flex items-center gap-2 rounded-full bg-blue-500/10 px-3 py-1 text-xs font-medium text-blue-400">
-                    <span className="h-1.5 w-1.5 rounded-full bg-blue-400" />
+                  <div className="mb-2 inline-flex items-center gap-2 rounded-full bg-teal-500/10 px-3 py-1 text-xs font-medium text-teal-400">
+                    <span className="h-1.5 w-1.5 rounded-full bg-teal-400" />
                     AI Planner
                   </div>
 
@@ -1683,7 +1475,7 @@ export default function Home() {
                   type="button"
                   onClick={() => setShowAIForm(false)}
                   aria-label="Close AI study planner"
-                  className="rounded-xl p-2 text-slate-500 transition hover:bg-slate-800 hover:text-white"
+                  className="sp-close-button rounded-xl p-2"
                 >
                   ✕
                 </button>
@@ -1709,7 +1501,7 @@ export default function Home() {
                     value={goal}
                     onChange={(e) => setGoal(e.target.value)}
                     placeholder="e.g. Prepare for my React exam"
-                    className="w-full rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-white outline-none transition placeholder:text-slate-600 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10"
+                    className="sp-input w-full rounded-xl px-4 py-3 outline-none"
                   />
                 </div>
 
@@ -1726,7 +1518,7 @@ export default function Home() {
                     type="date"
                     value={examDate}
                     onChange={(e) => setExamDate(e.target.value)}
-                    className="w-full rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-white outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10"
+                    className="sp-input w-full rounded-xl px-4 py-3 outline-none"
                   />
                 </div>
 
@@ -1746,7 +1538,7 @@ export default function Home() {
                     value={hoursPerDay}
                     onChange={(e) => setHoursPerDay(e.target.value)}
                     placeholder="e.g. 3"
-                    className="w-full rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-white outline-none transition placeholder:text-slate-600 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10"
+                    className="sp-input w-full rounded-xl px-4 py-3 outline-none"
                   />
                 </div>
 
@@ -1762,7 +1554,7 @@ export default function Home() {
                     id="study-level"
                     value={level}
                     onChange={(e) => setLevel(e.target.value)}
-                    className="w-full rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-white outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10"
+                    className="sp-input w-full rounded-xl px-4 py-3 outline-none"
                   >
                     <option>Beginner</option>
                     <option>Intermediate</option>
@@ -1783,7 +1575,7 @@ export default function Home() {
                     value={aiSubjects}
                     onChange={(e) => setAiSubjects(e.target.value)}
                     placeholder="HTML, CSS, JavaScript, React"
-                    className="w-full rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-white outline-none transition placeholder:text-slate-600 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10"
+                    className="sp-input w-full rounded-xl px-4 py-3 outline-none"
                   />
                 </div>
 
@@ -1800,7 +1592,7 @@ export default function Home() {
                   type="submit"
                   disabled={aiLoading}
                   aria-busy={aiLoading}
-                  className="flex w-full items-center justify-center gap-3 rounded-xl bg-blue-600 py-3 font-semibold text-white transition hover:bg-blue-500 disabled:cursor-not-allowed disabled:opacity-60"
+                  className="sp-primary-button flex w-full items-center justify-center gap-3 rounded-xl py-3 font-semibold disabled:cursor-not-allowed disabled:opacity-60"
                 >
                   {aiLoading ? (
                     <>
@@ -1818,11 +1610,11 @@ export default function Home() {
 
                 {aiPlan && (
                   <div
-                    className="mt-6 rounded-2xl border border-blue-500/15 bg-slate-950/60 p-5"
+                    className="sp-ai-result mt-6 rounded-2xl p-5"
                     aria-live="polite"
                   >
                     <div className="flex items-center gap-2">
-                      <span className="rounded-full bg-blue-500/10 px-2.5 py-1 text-xs font-medium text-blue-400">
+                      <span className="rounded-full bg-teal-500/10 px-2.5 py-1 text-xs font-medium text-teal-400">
                         AI Generated
                       </span>
 
@@ -1839,7 +1631,7 @@ export default function Home() {
                       Generated from your goals, level and available time.
                     </p>
 
-                    <div className="mt-5 rounded-2xl border border-slate-800 bg-slate-900 p-4">
+                    <div className="sp-ai-result-inner mt-5 rounded-2xl p-4">
                       <p className="whitespace-pre-line text-sm leading-7 text-slate-300">
                         {aiPlan}
                       </p>
@@ -1861,7 +1653,7 @@ export default function Home() {
                           {aiTasks.map((task, index) => (
                             <div
                               key={index}
-                              className="rounded-2xl border border-slate-800 bg-slate-900 p-4"
+                              className="sp-ai-task rounded-2xl p-4"
                             >
                               <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                                 <div className="min-w-0">
@@ -1897,7 +1689,7 @@ export default function Home() {
                         <button
                           type="button"
                           onClick={addAIPlanToTasks}
-                          className="mt-5 w-full rounded-xl bg-blue-600 py-3 font-semibold text-white transition hover:bg-blue-500"
+                          className="sp-primary-button mt-5 w-full rounded-xl py-3 font-semibold"
                         >
                           Add Plan to My Tasks
                         </button>
