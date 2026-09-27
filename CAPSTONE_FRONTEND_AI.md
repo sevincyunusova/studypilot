@@ -95,3 +95,41 @@ The hardest part was bringing the project from an AI-enabled prototype to a prod
 If I built it again, I would plan the testing and production constraints earlier instead of adding some of them near the end of development.
 
 One thing that surprised me was how much of production AI engineering is about handling failure and uncertainty rather than only generating a successful AI response. A useful AI feature needs predictable UI behavior, clear error states, testing, and limitations that users can understand.
+
+
+## Deployment Checklist
+
+- [x] Production deployment is live
+- [x] Production URL verified
+- [x] README includes setup and usage information
+- [x] AI integration documented
+- [x] Error handling and retry behavior implemented
+- [x] Automated tests pass
+- [x] Production build passes
+- [x] TypeScript validation passes
+- [x] Lighthouse audit completed
+- [x] Accessibility audit completed
+- [x] Known AI limitations documented
+- [x] Rollback approach documented
+
+## Audit Results
+
+### Lighthouse
+
+Mobile Lighthouse score: 90.
+
+### WAVE
+
+WAVE audit results:
+- 1 error
+- 0 contrast errors
+
+These audits were used to identify and improve production accessibility and performance issues.
+
+## Production URL
+
+https://studypilot-coral.vercel.app/
+
+## GitHub Repository
+
+https://github.com/sevincyunusova/studypilot
