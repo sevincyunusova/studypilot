@@ -41,11 +41,11 @@ const examplePrompts = [
 function ChatSkeleton() {
   return (
     <div className="flex justify-start">
-      <div className="w-full max-w-[80%] rounded-2xl bg-gray-100 px-4 py-4">
+      <div className="sp-chat-skeleton w-full max-w-[80%] rounded-2xl px-4 py-4">
         <div className="animate-pulse space-y-3">
-          <div className="h-3 w-3/4 rounded bg-gray-200" />
-          <div className="h-3 w-5/6 rounded bg-gray-200" />
-          <div className="h-3 w-2/3 rounded bg-gray-200" />
+          <div className="sp-chat-skeleton-bar h-3 w-3/4 rounded" />
+          <div className="sp-chat-skeleton-bar h-3 w-5/6 rounded" />
+          <div className="sp-chat-skeleton-bar h-3 w-2/3 rounded" />
         </div>
       </div>
     </div>
@@ -61,7 +61,7 @@ function StudyPlanCard({ plan }: { plan: StudyPlan }) {
         </h3>
 
         <div className="mt-2 flex flex-wrap gap-2">
-          <span className="rounded-full bg-blue-50 px-3 py-1 text-xs font-medium capitalize text-blue-700">
+          <span className="rounded-full bg-amber-50 px-3 py-1 text-xs font-medium capitalize text-amber-700">
             {plan.difficulty}
           </span>
 
@@ -108,7 +108,7 @@ function StudyPlanCard({ plan }: { plan: StudyPlan }) {
                   Day {item.day}
                 </p>
 
-                <p className="mt-1 text-sm font-medium text-blue-600">
+                <p className="mt-1 text-sm font-medium text-amber-600">
                   {item.topic}
                 </p>
               </div>
@@ -147,7 +147,7 @@ function GitHubRepositoryCard({
             </p>
           </div>
 
-          <span className="rounded-full bg-green-50 px-3 py-1 text-xs font-medium text-green-700">
+          <span className="rounded-full bg-emerald-50 px-3 py-1 text-xs font-medium text-emerald-700">
             Live GitHub Data
           </span>
         </div>
@@ -209,17 +209,18 @@ function GitHubRepositoryCard({
           </span>
         </p>
 
+
         <a
-          href={repository.url}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="rounded-lg bg-gray-900 px-3 py-2 text-xs font-medium text-white transition hover:bg-gray-700"
-        >
-          View Repository
-        </a>
-      </div>
-    </div>
-  );
+  href={repository.url}
+  target="_blank"
+  rel="noopener noreferrer"
+  className="rounded-lg bg-amber-700 px-3 py-2 text-xs font-medium text-white transition hover:bg-amber-600"
+>
+  View Repository
+</a>
+</div>
+</div>
+);
 }
 
 export default function AIChat() {
@@ -360,7 +361,7 @@ export default function AIChat() {
       <div
         ref={messagesContainerRef}
         onScroll={handleScroll}
-        className="relative min-h-[360px] max-h-[60dvh] space-y-4 overflow-y-auto overscroll-contain rounded-xl border border-gray-200 bg-slate-900 p-3 shadow-sm sm:min-h-[400px] sm:max-h-[500px] sm:p-4"
+        className="sp-chat-shell relative min-h-[360px] max-h-[60dvh] space-y-4 overflow-y-auto overscroll-contain rounded-2xl p-3 sm:min-h-[400px] sm:max-h-[500px] sm:p-4"
       >
         {messages.length === 0 && (
           <div className="flex min-h-[330px] items-center justify-center text-center sm:min-h-[360px]">
@@ -381,7 +382,7 @@ export default function AIChat() {
                     type="button"
                     onClick={() => handleExamplePrompt(prompt)}
                     disabled={isSubmitted || isStreaming}
-                    className="w-full rounded-xl border border-slate-700 bg-slate-800 px-4 py-3 text-left text-sm leading-5 text-slate-200 shadow-sm transition hover:border-blue-500 hover:bg-slate-700 hover:text-blue-400 disabled:cursor-not-allowed disabled:opacity-50 sm:py-3.5"
+                    className="sp-example-prompt w-full rounded-xl px-4 py-3 text-left text-sm leading-5 shadow-sm disabled:cursor-not-allowed disabled:opacity-50 sm:py-3.5"
                   >
                     {prompt}
                   </button>
@@ -395,14 +396,14 @@ export default function AIChat() {
           <div
             key={message.id}
             className={`flex ${message.role === "user"
-                ? "justify-end"
-                : "justify-start"
+              ? "justify-end"
+              : "justify-start"
               }`}
           >
             <div
               className={`max-w-[90%] rounded-2xl px-3 py-3 text-sm sm:max-w-[80%] sm:px-4 sm:py-3 sm:text-base ${message.role === "user"
-                  ? "bg-blue-600 text-white"
-                  : "bg-slate-800 text-slate-100"
+                ? "sp-bubble-user"
+                : "sp-bubble-ai"
                 }`}
             >
               {message.parts.map((part, index) => {
@@ -425,7 +426,7 @@ export default function AIChat() {
                     return (
                       <div
                         key={`${message.id}-${index}`}
-                        className="rounded-xl border border-blue-500/30 bg-blue-500/10 p-3 text-sm text-blue-300"
+                        className="rounded-xl border border-amber-500/30 bg-amber-500/10 p-3 text-sm text-amber-300"
                       >
                         Creating your personalized study plan...
                       </div>
@@ -445,7 +446,7 @@ export default function AIChat() {
                     return (
                       <div
                         key={`${message.id}-${index}`}
-                        className="rounded-xl border border-red-500/30 bg-red-500/10 p-3 text-sm text-red-300"
+                        className="rounded-xl border border-rose-500/30 bg-rose-500/10 p-3 text-sm text-rose-300"
                       >
                         Failed to create the study plan. Please try again.
                       </div>
@@ -461,7 +462,7 @@ export default function AIChat() {
                     return (
                       <div
                         key={`${message.id}-${index}`}
-                        className="rounded-xl border border-green-500/30 bg-green-500/10 p-3 text-sm text-green-300"
+                        className="rounded-xl border border-emerald-500/30 bg-emerald-500/10 p-3 text-sm text-emerald-300"
                       >
                         Fetching live GitHub repository data...
                       </div>
@@ -481,7 +482,7 @@ export default function AIChat() {
                     return (
                       <div
                         key={`${message.id}-${index}`}
-                        className="rounded-xl border border-red-500/30 bg-red-500/10 p-3 text-sm text-red-300"
+                        className="rounded-xl border border-rose-500/30 bg-rose-500/10 p-3 text-sm text-rose-300"
                       >
                         Failed to fetch GitHub repository data.
                       </div>
@@ -501,7 +502,7 @@ export default function AIChat() {
           <button
             type="button"
             onClick={jumpToLatest}
-            className="sticky bottom-2 left-1/2 z-10 -translate-x-1/2 rounded-full border border-slate-600 bg-slate-800 px-3 py-2 text-xs font-medium text-slate-200 shadow-md hover:bg-slate-700 sm:px-4 sm:text-sm"
+            className="sp-chat-pill sticky bottom-2 left-1/2 z-10 -translate-x-1/2 rounded-full px-3 py-2 text-xs font-medium shadow-md sm:px-4 sm:text-sm"
           >
             ↓ Jump to latest
           </button>
@@ -513,13 +514,13 @@ export default function AIChat() {
       {activeError && (
         <div
           role="alert"
-          className="rounded-xl border border-red-200 bg-red-50 px-4 py-4 text-sm text-red-700"
+          className="sp-chat-error rounded-xl px-4 py-4 text-sm"
         >
           <p className="font-medium">
             AI response failed
           </p>
 
-          <p className="mt-1 leading-6 text-red-600">
+          <p className="mt-1 leading-6 opacity-90">
             {chatError ||
               "The AI response could not be completed. Your failed message can be retried."}
           </p>
@@ -528,7 +529,7 @@ export default function AIChat() {
             type="button"
             onClick={handleRetry}
             disabled={isRetrying}
-            className="mt-3 w-full rounded-lg bg-red-600 px-4 py-2.5 font-medium text-white transition hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
+            className="mt-3 w-full rounded-lg bg-rose-600 px-4 py-2.5 font-medium text-white transition hover:bg-rose-700 disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
           >
             {isRetrying
               ? "Retrying failed response..."
@@ -547,14 +548,14 @@ export default function AIChat() {
           disabled={isSubmitted || isStreaming}
           placeholder="Ask StudyPilot..."
           aria-label="Ask StudyPilot"
-          className="min-w-0 flex-1 rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm text-gray-900 outline-none placeholder:text-gray-400 focus:ring-2 focus:ring-blue-500 sm:text-base"
+          className="sp-input min-w-0 flex-1 rounded-xl px-4 py-3 text-sm outline-none sm:text-base"
         />
 
         {isStreaming || isSubmitted ? (
           <button
             type="button"
             onClick={stop}
-            className="w-full rounded-xl bg-red-600 px-5 py-3 font-medium text-white sm:w-auto"
+            className="w-full rounded-xl bg-rose-600 px-5 py-3 font-medium text-white sm:w-auto"
           >
             Stop
           </button>
@@ -562,7 +563,7 @@ export default function AIChat() {
           <button
             type="submit"
             disabled={!input.trim()}
-            className="w-full rounded-xl bg-blue-600 px-5 py-3 font-medium text-white disabled:opacity-50 sm:w-auto"
+            className="sp-primary-button w-full rounded-xl px-5 py-3 font-medium disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
           >
             Send
           </button>

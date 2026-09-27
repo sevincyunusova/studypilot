@@ -13,7 +13,7 @@ const StudyScene = dynamic(
     loading: () => (
       <div className="sp-panel mt-8 flex h-[300px] items-center justify-center rounded-3xl sm:h-[400px]">
         <div className="flex flex-col items-center gap-3">
-          <div className="h-8 w-8 animate-spin rounded-full border-2 border-violet-500/20 border-t-violet-500" />
+          <div className="h-8 w-8 animate-spin rounded-full border-2 border-amber-500/20 border-t-amber-500" />
           <span className="text-sm text-slate-400">
             Loading 3D Study Desk...
           </span>
@@ -216,12 +216,12 @@ export default function Home() {
       current.map((task) =>
         task.id === editingTask.id
           ? {
-              ...task,
-              title,
-              subject,
-              deadline,
-              priority,
-            }
+            ...task,
+            title,
+            subject,
+            deadline,
+            priority,
+          }
           : task
       )
     )
@@ -358,9 +358,9 @@ export default function Home() {
             !currentTasks.some(
               (existingTask) =>
                 existingTask.title.toLowerCase() ===
-                  aiTask.title.toLowerCase() &&
+                aiTask.title.toLowerCase() &&
                 existingTask.subject.toLowerCase() ===
-                  aiTask.subject.toLowerCase() &&
+                aiTask.subject.toLowerCase() &&
                 existingTask.deadline === aiTask.deadline
             )
         )
@@ -507,13 +507,13 @@ export default function Home() {
           className="sp-hero relative mb-10 overflow-hidden rounded-[2rem] p-6 sm:p-8 lg:p-10"
           aria-labelledby="page-title"
         >
-          <div className="pointer-events-none absolute -right-24 -top-28 h-72 w-72 rounded-full bg-violet-500/10 blur-3xl" />
-          <div className="pointer-events-none absolute -bottom-32 left-1/3 h-64 w-64 rounded-full bg-teal-500/[0.08] blur-3xl" />
+          <div className="pointer-events-none absolute -right-24 -top-28 h-72 w-72 rounded-full bg-amber-500/10 blur-3xl" />
+          <div className="pointer-events-none absolute -bottom-32 left-1/3 h-64 w-64 rounded-full bg-emerald-500/[0.08] blur-3xl" />
 
           <div className="relative flex flex-col gap-8 lg:flex-row lg:items-end lg:justify-between">
             <div className="max-w-2xl">
-              <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-violet-400/20 bg-violet-500/[0.08] px-3 py-1.5 text-xs font-medium text-violet-400">
-                <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-violet-400" />
+              <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-amber-400/20 bg-amber-500/[0.08] px-3 py-1.5 text-xs font-medium text-amber-400">
+                <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-amber-400" />
                 Personal study dashboard
               </div>
 
@@ -522,7 +522,7 @@ export default function Home() {
                 className="text-4xl font-bold tracking-[-0.045em] text-white sm:text-5xl"
               >
                 {greeting},{" "}
-                <span className="bg-gradient-to-r from-violet-400 via-fuchsia-400 to-teal-400 bg-clip-text text-transparent">
+                <span className="bg-gradient-to-r from-amber-400 via-rose-400 to-emerald-400 bg-clip-text text-transparent">
                   {displayName}
                 </span>
                 .
@@ -540,7 +540,7 @@ export default function Home() {
                     setEditingTask(null)
                     setShowForm(true)
                   }}
-                  className="group inline-flex items-center gap-2 rounded-xl bg-violet-600 px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-violet-600/20 transition hover:-translate-y-0.5 hover:bg-violet-500 hover:shadow-violet-500/30"
+                  className="group inline-flex items-center gap-2 rounded-xl bg-amber-600 px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-amber-600/20 transition hover:-translate-y-0.5 hover:bg-amber-500 hover:shadow-amber-500/30"
                 >
                   <span className="text-lg leading-none transition group-hover:rotate-90">
                     +
@@ -579,7 +579,7 @@ export default function Home() {
                 {
                   label: "Tasks",
                   value: tasks.length,
-                  color: "violet",
+                  color: "amber",
                 },
                 {
                   label: "Done",
@@ -589,12 +589,12 @@ export default function Home() {
                 {
                   label: "Upcoming",
                   value: upcomingTasks.length,
-                  color: "amber",
+                  color: "orange",
                 },
                 {
                   label: "Progress",
                   value: `${progress}%`,
-                  color: "fuchsia",
+                  color: "rose",
                 },
               ].map((item) => (
                 <div
@@ -606,15 +606,14 @@ export default function Home() {
                   </p>
 
                   <p
-                    className={`mt-2 text-2xl font-bold ${
-                      item.color === "green"
+                    className={`mt-2 text-2xl font-bold ${item.color === "green"
                         ? "text-emerald-400"
-                        : item.color === "amber"
-                          ? "text-amber-400"
-                          : item.color === "fuchsia"
-                            ? "text-fuchsia-400"
-                            : "text-violet-400"
-                    }`}
+                        : item.color === "orange"
+                          ? "text-orange-400"
+                          : item.color === "rose"
+                            ? "text-rose-400"
+                            : "text-amber-400"
+                      }`}
                   >
                     {item.value}
                   </p>
@@ -630,7 +629,7 @@ export default function Home() {
         >
           <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-end">
             <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-violet-400">
+              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-amber-400">
                 Overview
               </p>
 
@@ -657,28 +656,28 @@ export default function Home() {
                 value: tasks.length,
                 description: "All study tasks",
                 icon: "layers",
-                accent: "violet",
+                accent: "amber",
               },
               {
                 label: "Completed",
                 value: completedTasks,
                 description: `${progress}% completion rate`,
                 icon: "check",
-                accent: "teal",
+                accent: "emerald",
               },
               {
                 label: "Upcoming",
                 value: upcomingTasks.length,
                 description: "Upcoming deadlines",
                 icon: "calendar",
-                accent: "amber",
+                accent: "orange",
               },
               {
                 label: "High Priority",
                 value: highPriorityTasks,
                 description: "Need your attention",
                 icon: "bolt",
-                accent: "rose",
+                accent: "pink",
               },
             ].map((stat) => (
               <div
@@ -778,7 +777,7 @@ export default function Home() {
           <div className="sp-panel rounded-3xl p-6">
             <div className="flex items-start justify-between gap-4">
               <div>
-                <p className="text-xs font-semibold uppercase tracking-[0.16em] text-teal-400">
+                <p className="text-xs font-semibold uppercase tracking-[0.16em] text-emerald-400">
                   Schedule
                 </p>
 
@@ -791,14 +790,14 @@ export default function Home() {
                 </p>
               </div>
 
-              <span className="rounded-full border border-teal-500/20 bg-teal-500/10 px-3 py-1 text-xs font-semibold text-teal-400">
+              <span className="rounded-full border border-emerald-500/20 bg-emerald-500/10 px-3 py-1 text-xs font-semibold text-emerald-400">
                 {upcomingTasks.length}
               </span>
             </div>
 
             {upcomingTasks.length === 0 ? (
               <div className="mt-6 rounded-2xl border border-dashed border-slate-700/80 bg-slate-950/30 p-8 text-center">
-                <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-violet-500/10 text-violet-400">
+                <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-amber-500/10 text-amber-400">
                   <svg
                     width="21"
                     height="21"
@@ -828,7 +827,7 @@ export default function Home() {
                     className="sp-task-row group flex items-center justify-between gap-4 rounded-2xl p-4"
                   >
                     <div className="flex min-w-0 items-center gap-3">
-                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-violet-500/10 text-xs font-bold text-violet-400">
+                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-amber-500/10 text-xs font-bold text-amber-400">
                         {task.subject.slice(0, 2).toUpperCase()}
                       </div>
 
@@ -849,12 +848,11 @@ export default function Home() {
                       </p>
 
                       <p
-                        className={`mt-1 text-xs font-medium ${
-                          getDeadlineStatus(
-                            task.deadline,
-                            task.completed
-                          ).className
-                        }`}
+                        className={`mt-1 text-xs font-medium ${getDeadlineStatus(
+                          task.deadline,
+                          task.completed
+                        ).className
+                          }`}
                       >
                         {
                           getDeadlineStatus(
@@ -871,7 +869,7 @@ export default function Home() {
           </div>
 
           <div className="sp-panel rounded-3xl p-6">
-            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-fuchsia-400">
+            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-rose-400">
               Performance
             </p>
 
@@ -903,7 +901,7 @@ export default function Home() {
                 aria-label="Overall study progress"
               >
                 <div
-                  className="h-full rounded-full bg-gradient-to-r from-violet-500 via-fuchsia-500 to-teal-500 transition-all duration-700"
+                  className="h-full rounded-full bg-gradient-to-r from-amber-500 via-rose-500 to-emerald-500 transition-all duration-700"
                   style={{ width: `${progress}%` }}
                 />
               </div>
@@ -925,7 +923,7 @@ export default function Home() {
                   Remaining
                 </p>
 
-                <p className="mt-2 text-2xl font-bold text-violet-400">
+                <p className="mt-2 text-2xl font-bold text-amber-400">
                   {tasks.length - completedTasks}
                 </p>
               </div>
@@ -956,7 +954,7 @@ export default function Home() {
           <div className="flex flex-col gap-5">
             <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
               <div>
-                <p className="text-xs font-semibold uppercase tracking-[0.16em] text-violet-400">
+                <p className="text-xs font-semibold uppercase tracking-[0.16em] text-amber-400">
                   Workspace
                 </p>
 
@@ -978,7 +976,7 @@ export default function Home() {
                   setEditingTask(null)
                   setShowForm(true)
                 }}
-                className="rounded-xl bg-violet-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-violet-500"
+                className="rounded-xl bg-amber-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-amber-500"
               >
                 + Add task
               </button>
@@ -995,11 +993,10 @@ export default function Home() {
                   type="button"
                   onClick={() => setSelectedSubject(item)}
                   aria-pressed={selectedSubject === item}
-                  className={`rounded-xl px-4 py-2 text-sm font-medium transition ${
-                    selectedSubject === item
-                      ? "bg-violet-600 text-white shadow-lg shadow-violet-600/15"
+                  className={`rounded-xl px-4 py-2 text-sm font-medium transition ${selectedSubject === item
+                      ? "bg-amber-600 text-white shadow-lg shadow-amber-600/15"
                       : "sp-filter-button"
-                  }`}
+                    }`}
                 >
                   {item}
                 </button>
@@ -1054,7 +1051,7 @@ export default function Home() {
                       aria-pressed={taskStatus === status}
                       className={
                         taskStatus === status
-                          ? "rounded-xl bg-violet-600 px-4 py-2 text-sm font-medium text-white shadow-lg shadow-violet-600/15"
+                          ? "rounded-xl bg-amber-600 px-4 py-2 text-sm font-medium text-white shadow-lg shadow-amber-600/15"
                           : "sp-filter-button rounded-xl px-4 py-2 text-sm font-medium"
                       }
                     >
@@ -1068,7 +1065,7 @@ export default function Home() {
 
           {filteredTasks.length === 0 ? (
             <div className="sp-empty-state mt-6 rounded-2xl px-6 py-14 text-center">
-              <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-violet-500/10 text-violet-400">
+              <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-amber-500/10 text-amber-400">
                 {tasks.length === 0 ? (
                   <svg
                     width="24"
@@ -1116,7 +1113,7 @@ export default function Home() {
                     setEditingTask(null)
                     setShowForm(true)
                   }}
-                  className="mt-5 rounded-xl bg-violet-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-violet-500"
+                  className="mt-5 rounded-xl bg-amber-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-amber-500"
                 >
                   Create your first task
                 </button>
@@ -1152,22 +1149,21 @@ export default function Home() {
                     checked={task.completed}
                     onChange={() => toggleTask(task.id)}
                     aria-label={`Mark ${task.title} as completed`}
-                    className="h-5 w-5 cursor-pointer accent-violet-600"
+                    className="h-5 w-5 cursor-pointer accent-amber-600"
                   />
 
                   <div className="min-w-0 flex-1">
                     <h3
-                      className={`font-semibold ${
-                        task.completed
+                      className={`font-semibold ${task.completed
                           ? "text-slate-500 line-through"
                           : "text-white"
-                      }`}
+                        }`}
                     >
                       {task.title}
                     </h3>
 
                     <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs">
-                      <span className="text-violet-400">
+                      <span className="text-amber-400">
                         {task.subject}
                       </span>
 
@@ -1198,13 +1194,12 @@ export default function Home() {
                   </div>
 
                   <span
-                    className={`w-fit rounded-full px-3 py-1.5 text-xs font-medium ${
-                      task.priority === "High"
+                    className={`w-fit rounded-full px-3 py-1.5 text-xs font-medium ${task.priority === "High"
                         ? "bg-red-500/10 text-red-400"
                         : task.priority === "Medium"
                           ? "bg-yellow-500/10 text-yellow-400"
                           : "bg-emerald-500/10 text-emerald-400"
-                    }`}
+                      }`}
                   >
                     {task.priority}
                   </span>
@@ -1236,11 +1231,11 @@ export default function Home() {
           className="sp-ai-planner relative mt-10 overflow-hidden rounded-3xl p-6 sm:p-8"
           aria-labelledby="ai-planner-heading"
         >
-          <div className="pointer-events-none absolute -right-20 -top-20 h-56 w-56 rounded-full bg-teal-500/10 blur-3xl" />
+          <div className="pointer-events-none absolute -right-20 -top-20 h-56 w-56 rounded-full bg-emerald-500/10 blur-3xl" />
 
           <div className="relative flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
             <div className="max-w-2xl">
-              <div className="mb-3 inline-flex items-center gap-2 rounded-full bg-teal-500/10 px-3 py-1 text-xs font-medium text-teal-400">
+              <div className="mb-3 inline-flex items-center gap-2 rounded-full bg-emerald-500/10 px-3 py-1 text-xs font-medium text-emerald-400">
                 <svg
                   width="14"
                   height="14"
@@ -1285,7 +1280,7 @@ export default function Home() {
           aria-labelledby="study-scene-heading"
         >
           <div className="mb-4">
-            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-amber-400">
+            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-orange-400">
               Focus space
             </p>
 
@@ -1326,7 +1321,7 @@ export default function Home() {
             <div className="sp-modal w-full max-w-md rounded-3xl p-6">
               <div className="mb-6 flex items-center justify-between">
                 <div>
-                  <p className="text-xs font-semibold uppercase tracking-[0.16em] text-violet-400">
+                  <p className="text-xs font-semibold uppercase tracking-[0.16em] text-amber-400">
                     Workspace
                   </p>
 
@@ -1454,8 +1449,8 @@ export default function Home() {
             <div className="sp-modal max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-3xl p-6">
               <div className="mb-6 flex items-start justify-between gap-4">
                 <div>
-                  <div className="mb-2 inline-flex items-center gap-2 rounded-full bg-teal-500/10 px-3 py-1 text-xs font-medium text-teal-400">
-                    <span className="h-1.5 w-1.5 rounded-full bg-teal-400" />
+                  <div className="mb-2 inline-flex items-center gap-2 rounded-full bg-emerald-500/10 px-3 py-1 text-xs font-medium text-emerald-400">
+                    <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
                     AI Planner
                   </div>
 
@@ -1614,7 +1609,7 @@ export default function Home() {
                     aria-live="polite"
                   >
                     <div className="flex items-center gap-2">
-                      <span className="rounded-full bg-teal-500/10 px-2.5 py-1 text-xs font-medium text-teal-400">
+                      <span className="rounded-full bg-emerald-500/10 px-2.5 py-1 text-xs font-medium text-emerald-400">
                         AI Generated
                       </span>
 
@@ -1671,13 +1666,12 @@ export default function Home() {
                                 </div>
 
                                 <span
-                                  className={`w-fit rounded-full px-3 py-1 text-xs font-medium ${
-                                    task.priority === "High"
+                                  className={`w-fit rounded-full px-3 py-1 text-xs font-medium ${task.priority === "High"
                                       ? "bg-red-500/10 text-red-400"
                                       : task.priority === "Medium"
                                         ? "bg-yellow-500/10 text-yellow-400"
                                         : "bg-emerald-500/10 text-emerald-400"
-                                  }`}
+                                    }`}
                                 >
                                   {task.priority}
                                 </span>

@@ -25,13 +25,34 @@ export const metadata: Metadata = {
   },
 }
 
+const themeScript = `
+(function () {
+  try {
+    const savedTheme = localStorage.getItem("studypilot-theme")
+    const theme = savedTheme === "light" ? "light" : "dark"
+    document.documentElement.classList.toggle("light", theme === "light")
+    document.documentElement.classList.toggle("dark", theme === "dark")
+  } catch (error) {
+    document.documentElement.classList.add("dark")
+  }
+})()
+`
+
 export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: themeScript,
+          }}
+        />
+      </head>
+
       <body>
         {children}
         <Analytics />
