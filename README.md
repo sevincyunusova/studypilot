@@ -389,7 +389,7 @@ The FL-09 demo demonstrates:
 
 Demo video:
 
-PASTE_YOUTUBE_LINK_HERE
+https://youtu.be/Ps-F1bN2wGo
 
 ## License
 
